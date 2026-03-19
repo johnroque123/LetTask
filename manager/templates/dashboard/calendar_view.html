@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+{% block title %}Calendar – Tasklify{% endblock %}
+{% block nav_calendar %}active{% endblock %}
+{% block page_title %}Calendar{% endblock %}
+{% block page_subtitle %}{{ month_name }} {{ year }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-5">
+
+    <!-- Month navigation -->
+    <div class="bg-white rounded-2xl border border-slate-200 px-5 py-3 flex items-center justify-between">
+        <a href="?year={{ prev_year }}&month={{ prev_month }}"
+            class="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 font-medium transition px-3 py-1.5 rounded-xl hover:bg-slate-100">
+            ‹ Prev
+        </a>
+        <span class="brand-font text-slate-800 font-bold text-base">{{ month_name }} {{ year }}</span>
+        <a href="?year={{ next_year }}&month={{ next_month }}"
+            class="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 font-medium transition px-3 py-1.5 rounded-xl hover:bg-slate-100">
+            Next ›
+        </a>
+    </div>
+
+    <!-- Calendar grid -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-4">
+        <div class="grid grid-cols-7 mb-2">
+            {% for day_name in day_names %}
+            <div class="text-center text-xs font-semibold text-slate-400 py-1.5 uppercase tracking-wider">{{ day_name }}</div>
+            {% endfor %}
+        </div>
+        <div class="grid grid-cols-7 gap-1">
+            {% for cell in calendar_cells %}
+                {% if cell.day == 0 %}
+                    <div class="rounded-xl p-1 min-h-16"></div>
+                {% else %}
+                    <div class="rounded-xl p-1.5 min-h-16 border transition cursor-pointer select-none
+                            {% if cell.is_today %}border-blue-400 bg-blue-50 hover:bg-blue-100
+                            {% elif cell.has_items %}border-slate-200 bg-slate-50 hover:bg-slate-100
+                            {% else %}border-transparent hover:bg-slate-50 hover:border-slate-200{% endif %}"
+                        data-day="{{ cell.day }}"
+                        data-year="{{ year }}"
+                        data-month="{{ month }}"
+                        data-tasks="{{ cell.tasks_json|escapejs }}"
+                        onclick="handleDayClick(this)">
+                        <div class="text-xs font-bold mb-1 {% if cell.is_today %}text-blue-600{% else %}text-slate-600{% endif %}">
+                            {{ cell.day }}
+                        </div>
+                        <div class="flex flex-wrap gap-0.5">
+                            {% for task in cell.tasks|slice:":3" %}
+                                <div class="w-2 h-2 rounded-full flex-shrink-0
+                                    {% if task.priority == 'high' %}bg-red-400
+                                    {% elif task.priority == 'medium' %}bg-amber-400
+                                    {% else %}bg-green-400{% endif %}"
+                                    title="Task: {{ task.title }}"></div>
+                            {% endfor %}
+                            {% for s in cell.schedules|slice:":3" %}
+                                <div class="w-2 h-2 rounded-sm flex-shrink-0 bg-violet-400"
+                                    title="Schedule: {{ s.title }}"></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="bg-white rounded-2xl border border-slate-200 px-5 py-3 flex items-center gap-4 flex-wrap">
+        <span class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Legend</span>
+        <span class="flex items-center gap-1.5 text-xs text-slate-600"><span class="w-2.5 h-2.5 rounded-full bg-red-400 inline-block"></span> High</span>
+        <span class="flex items-center gap-1.5 text-xs text-slate-600"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> Medium</span>
+        <span class="flex items-center gap-1.5 text-xs text-slate-600"><span class="w-2.5 h-2.5 rounded-full bg-green-400 inline-block"></span> Low</span>
+        <span class="flex items-center gap-1.5 text-xs text-slate-600"><span class="w-2.5 h-2.5 rounded-sm bg-violet-400 inline-block"></span> Schedule</span>
+        <span class="flex items-center gap-1.5 text-xs text-slate-600 ml-auto"><span class="w-2.5 h-2.5 rounded-full border-2 border-blue-400 inline-block"></span> Today</span>
+    </div>
+
+    <!-- Schedule by Category (Tasks) -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h2 class="text-sm font-semibold text-slate-700 mb-4 uppercase tracking-widest flex items-center gap-2">
+            Tasks by Category
+            <span class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-semibold">{{ month_tasks|length }}</span>
+        </h2>
+        {% if schedule_groups %}
+        <div class="space-y-4">
+            {% for group in schedule_groups %}
+            <div class="border border-slate-100 rounded-xl overflow-hidden">
+                <div class="flex items-center justify-between px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full {{ group.dot }} inline-block"></span>
+                        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">{{ group.label }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-20 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                            {% if group.total > 0 %}
+                            <div class="h-full {{ group.dot }} rounded-full" style="width: {% widthratio group.done group.total 100 %}%"></div>
+                            {% endif %}
+                        </div>
+                        <span class="text-xs text-slate-400 font-medium">{{ group.done }}/{{ group.total }}</span>
+                    </div>
+                </div>
+                <ul class="divide-y divide-slate-50">
+                    {% for task in group.tasks %}
+                    <li class="flex items-center justify-between px-4 py-2.5 {% if task.is_completed %}opacity-50{% endif %}">
+                        <div class="flex items-center gap-2.5 flex-1 min-w-0 mr-3">
+                            <div class="w-1.5 h-1.5 rounded-full flex-shrink-0
+                                {% if task.priority == 'high' %}bg-red-400
+                                {% elif task.priority == 'medium' %}bg-amber-400
+                                {% else %}bg-green-400{% endif %}"></div>
+                            <span class="text-sm {% if task.is_completed %}text-slate-400 line-through{% else %}text-slate-700{% endif %} truncate">{{ task.title }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            {% if task.due_date %}<span class="text-xs text-slate-400">{{ task.due_date }}</span>{% endif %}
+                            <a href="{% url 'calendar_edit_task' task.id %}?year={{ year }}&month={{ month }}"
+                               class="text-xs text-slate-400 hover:text-blue-500 transition px-1.5 py-0.5 rounded hover:bg-blue-50">✏️</a>
+                            <a href="{% url 'calendar_delete_task' task.id %}?year={{ year }}&month={{ month }}"
+                               class="text-xs text-slate-400 hover:text-red-500 transition px-1.5 py-0.5 rounded hover:bg-red-50">🗑</a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center text-sm text-slate-400 py-6">No tasks due this month.</p>
+        {% endif %}
+    </div>
+
+    <!-- Schedules this month -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h2 class="text-sm font-semibold text-slate-700 mb-4 uppercase tracking-widest flex items-center gap-2">
+            Schedules This Month
+            <span class="bg-violet-100 text-violet-600 text-xs px-2 py-0.5 rounded-full font-semibold">{{ month_schedules|length }}</span>
+        </h2>
+        {% if month_schedules %}
+        <ul class="space-y-2">
+            {% for s in month_schedules %}
+            <li class="flex items-center justify-between border border-slate-100 rounded-xl px-4 py-3 {% if s.is_completed %}opacity-50{% endif %}">
+                <div class="flex items-center gap-3 flex-1 min-w-0 mr-3">
+                    <div class="w-2 h-2 rounded-sm bg-violet-400 flex-shrink-0"></div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-sm font-medium {% if s.is_completed %}text-slate-400 line-through{% else %}text-slate-800{% endif %}">{{ s.title }}</span>
+                            {% if s.priority == 'high' %}
+                                <span class="text-xs px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 font-semibold">High</span>
+                            {% elif s.priority == 'medium' %}
+                                <span class="text-xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600 font-semibold">Medium</span>
+                            {% else %}
+                                <span class="text-xs px-1.5 py-0.5 rounded-full bg-green-100 text-green-600 font-semibold">Low</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5">
+                            📅 {{ s.date }}
+                            {% if s.start_time %} · 🕐 {{ s.start_time|time:"g:i A" }}{% endif %}
+                            {% if s.end_time %} – {{ s.end_time|time:"g:i A" }}{% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    {% if s.is_completed %}
+                        <span class="text-xs text-green-500 font-semibold">✓ Done</span>
+                    {% else %}
+                        <span class="text-xs text-slate-400">Upcoming</span>
+                    {% endif %}
+                    <a href="{% url 'schedule_edit' s.id %}" class="text-xs text-slate-400 hover:text-blue-500 transition px-1.5 py-0.5 rounded hover:bg-blue-50">✏️</a>
+                    <a href="{% url 'schedule_delete' s.id %}" class="text-xs text-slate-400 hover:text-red-500 transition px-1.5 py-0.5 rounded hover:bg-red-50">🗑</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-center text-sm text-slate-400 py-6">No schedules this month.</p>
+        {% endif %}
+    </div>
+
+    <!-- Tasks this month -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h2 class="text-sm font-semibold text-slate-700 mb-4 uppercase tracking-widest flex items-center gap-2">
+            Tasks Due This Month
+            <span class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-semibold">{{ month_tasks|length }}</span>
+        </h2>
+        {% if month_tasks %}
+        <ul class="space-y-2">
+            {% for task in month_tasks %}
+            <li class="flex items-center justify-between border border-slate-100 rounded-xl px-4 py-3 {% if task.is_completed %}opacity-50{% endif %}">
+                <div class="flex-1 min-w-0 mr-3">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm font-medium {% if task.is_completed %}text-slate-400 line-through{% else %}text-slate-800{% endif %}">{{ task.title }}</span>
+                        {% if task.priority == 'high' %}
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-600 font-semibold">High</span>
+                        {% elif task.priority == 'medium' %}
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 font-semibold">Medium</span>
+                        {% else %}
+                            <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-600 font-semibold">Low</span>
+                        {% endif %}
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-medium capitalize">{{ task.get_category_display }}</span>
+                    </div>
+                    {% if task.due_date %}<p class="text-xs text-slate-400 mt-0.5">Due: {{ task.due_date }}</p>{% endif %}
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    {% if task.is_completed %}
+                        <span class="text-xs text-green-500 font-semibold">✓ Done</span>
+                    {% else %}
+                        <span class="text-xs text-slate-400">Pending</span>
+                    {% endif %}
+                    <a href="{% url 'calendar_edit_task' task.id %}?year={{ year }}&month={{ month }}"
+                       class="text-xs text-slate-400 hover:text-blue-500 transition px-1.5 py-0.5 rounded hover:bg-blue-50">✏️</a>
+                    <a href="{% url 'calendar_delete_task' task.id %}?year={{ year }}&month={{ month }}"
+                       class="text-xs text-slate-400 hover:text-red-500 transition px-1.5 py-0.5 rounded hover:bg-red-50">🗑</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-center text-sm text-slate-400 py-6">No tasks due this month.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- Day Modal -->
+<div id="dayModal" class="fixed inset-0 z-50 flex items-end justify-center pointer-events-none">
+    <div id="modalBackdrop"
+         class="absolute inset-0 bg-black/30 backdrop-blur-sm opacity-0 transition-opacity duration-300 pointer-events-none"
+         onclick="closeDayModal()"></div>
+    <div id="modalSheet"
+         class="relative w-full max-w-lg bg-white rounded-t-3xl shadow-2xl translate-y-full transition-transform duration-300 ease-out pointer-events-auto"
+         style="max-height: 85vh; overflow-y: auto;">
+        <div class="flex justify-center pt-3 pb-1">
+            <div class="w-10 h-1 rounded-full bg-slate-200"></div>
+        </div>
+        <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+            <div>
+                <h3 id="modalTitle" class="text-base font-bold text-slate-800"></h3>
+                <p id="modalSubtitle" class="text-xs text-slate-400 mt-0.5"></p>
+            </div>
+            <button onclick="closeDayModal()"
+                    class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition text-lg">✕</button>
+        </div>
+        <div class="px-5 py-4 space-y-3" id="modalBody"></div>
+        <div class="px-5 pb-6 pt-2 border-t border-slate-100 space-y-2">
+            <a id="addTaskBtn" href="#"
+               class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold transition">
+                ✅ Add Task on This Day
+            </a>
+            <a id="addScheduleBtn" href="#"
+               class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-semibold transition">
+                🗓 Add Schedule on This Day
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+const MONTH_NAMES     = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+const PRIORITY_COLORS = { high: 'bg-red-100 text-red-600', medium: 'bg-amber-100 text-amber-600', low: 'bg-green-100 text-green-600' };
+const PRIORITY_DOT    = { high: 'bg-red-400', medium: 'bg-amber-400', low: 'bg-green-400' };
+
+const CAL_ADD_URL      = "{% url 'calendar_add_task' %}";
+const CAL_EDIT_URL     = "{% url 'calendar_edit_task' 0 %}".replace('/0/', '/');
+const CAL_DEL_URL      = "{% url 'calendar_delete_task' 0 %}".replace('/0/', '/');
+const SCHEDULE_ADD_URL = "{% url 'schedule_add' %}";
+const SCH_EDIT_URL     = "{% url 'schedule_edit' 0 %}".replace('/0/', '/');
+const SCH_DEL_URL      = "{% url 'schedule_delete' 0 %}".replace('/0/', '/');
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
+function handleDayClick(el) {
+    const day   = parseInt(el.dataset.day);
+    const year  = parseInt(el.dataset.year);
+    const month = parseInt(el.dataset.month);
+    const items = JSON.parse(el.dataset.tasks || '[]');
+    openDayModal(day, year, month, items);
+}
+
+function openDayModal(day, year, month, items) {
+    const dateStr = `${year}-${pad(month)}-${pad(day)}`;
+    const label   = `${MONTH_NAMES[month]} ${day}, ${year}`;
+    const taskCount     = items.filter(i => i.type === 'task').length;
+    const scheduleCount = items.filter(i => i.type === 'schedule').length;
+
+    document.getElementById('modalTitle').textContent = label;
+
+    let subtitle = '';
+    if (!items.length) {
+        subtitle = 'Nothing scheduled';
+    } else {
+        const parts = [];
+        if (taskCount)     parts.push(`${taskCount} task${taskCount > 1 ? 's' : ''}`);
+        if (scheduleCount) parts.push(`${scheduleCount} schedule${scheduleCount > 1 ? 's' : ''}`);
+        subtitle = parts.join(' · ');
+    }
+    document.getElementById('modalSubtitle').textContent = subtitle;
+
+    document.getElementById('addTaskBtn').href = `${CAL_ADD_URL}?date=${dateStr}&year=${year}&month=${month}`;
+    document.getElementById('addScheduleBtn').href = `${SCHEDULE_ADD_URL}?date=${dateStr}`;
+
+    const body = document.getElementById('modalBody');
+
+    if (!items.length) {
+        body.innerHTML = `<div class="text-center py-6"><div class="text-3xl mb-2">📭</div><p class="text-sm text-slate-400">Nothing here yet.<br>Use the buttons below to add.</p></div>`;
+        showModal(); return;
+    }
+
+    const tasks     = items.filter(i => i.type === 'task');
+    const schedules = items.filter(i => i.type === 'schedule');
+    let html = '';
+
+    if (tasks.length) {
+        html += `<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Tasks</p>`;
+        html += tasks.map(t => `
+            <div class="flex items-center gap-3 border border-slate-100 rounded-xl px-4 py-3 mb-2 ${t.is_completed ? 'opacity-50' : ''}">
+                <div class="w-2 h-2 rounded-full flex-shrink-0 ${PRIORITY_DOT[t.priority] || 'bg-slate-400'}"></div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium ${t.is_completed ? 'line-through text-slate-400' : 'text-slate-800'} truncate">${t.title}</p>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <span class="text-xs px-1.5 py-0.5 rounded-full font-semibold ${PRIORITY_COLORS[t.priority] || 'bg-slate-100 text-slate-500'} capitalize">${t.priority}</span>
+                        <span class="text-xs text-slate-400 capitalize">${t.category}</span>
+                        ${t.is_completed ? '<span class="text-xs text-green-500 font-semibold ml-1">✓ Done</span>' : ''}
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <a href="${CAL_EDIT_URL}${t.id}/?year=${year}&month=${month}" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-500 transition text-sm">✏️</a>
+                    <a href="${CAL_DEL_URL}${t.id}/?year=${year}&month=${month}" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition text-sm">🗑</a>
+                </div>
+            </div>`).join('');
+    }
+
+    if (schedules.length) {
+        html += `<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 mt-2">Schedules</p>`;
+        html += schedules.map(s => `
+            <div class="flex items-center gap-3 border border-violet-100 rounded-xl px-4 py-3 mb-2 bg-violet-50/40 ${s.is_completed ? 'opacity-50' : ''}">
+                <div class="w-2 h-2 rounded-sm flex-shrink-0 bg-violet-400"></div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium ${s.is_completed ? 'line-through text-slate-400' : 'text-slate-800'} truncate">${s.title}</p>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        ${s.start_time ? `<span class="text-xs text-slate-400">🕐 ${s.start_time}</span>` : '<span class="text-xs text-slate-300">All day</span>'}
+                        <span class="text-xs px-1.5 py-0.5 rounded-full font-semibold ${PRIORITY_COLORS[s.priority] || 'bg-slate-100 text-slate-500'} capitalize">${s.priority}</span>
+                        <span class="text-xs text-slate-400 capitalize">${s.category}</span>
+                        ${s.is_completed ? '<span class="text-xs text-green-500 font-semibold ml-1">✓ Done</span>' : ''}
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <a href="${SCH_EDIT_URL}${s.id}/" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-500 transition text-sm">✏️</a>
+                    <a href="${SCH_DEL_URL}${s.id}/" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition text-sm">🗑</a>
+                </div>
+            </div>`).join('');
+    }
+
+    body.innerHTML = html;
+    showModal();
+}
+
+function showModal() {
+    const backdrop = document.getElementById('modalBackdrop');
+    const sheet    = document.getElementById('modalSheet');
+    backdrop.classList.add('pointer-events-auto');
+    backdrop.style.opacity = '1';
+    sheet.style.transform  = 'translateY(0)';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDayModal() {
+    const backdrop = document.getElementById('modalBackdrop');
+    const sheet    = document.getElementById('modalSheet');
+    backdrop.style.opacity = '0';
+    sheet.style.transform  = 'translateY(100%)';
+    setTimeout(() => {
+        backdrop.classList.remove('pointer-events-auto');
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDayModal(); });
+</script>
+{% endblock %}

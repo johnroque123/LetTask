@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile – Tasklify{% endblock %}
+{% block page_title %}Edit Profile{% endblock %}
+{% block page_subtitle %}Update your personal information{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-lg">👤</div>
+            <div>
+                <h2 class="text-sm font-bold text-slate-800">Edit Profile</h2>
+                <p class="text-xs text-slate-400">Update your name, bio, and avatar</p>
+            </div>
+        </div>
+
+        <!-- Avatar preview -->
+        <div class="px-6 pt-5 flex items-center gap-4">
+            <div class="relative">
+                <div id="avatar-preview"
+                    class="w-20 h-20 rounded-2xl bg-blue-500/10 border-2 border-blue-200 flex items-center justify-center overflow-hidden text-3xl font-bold text-blue-500">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" class="w-full h-full object-cover" id="preview-img" alt="">
+                    {% else %}
+                        <span id="avatar-initials">{{ request.user.username|first|upper }}</span>
+                        <img src="" class="w-full h-full object-cover hidden" id="preview-img" alt="">
+                    {% endif %}
+                </div>
+                <label for="avatar-input"
+                    class="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-500 hover:bg-blue-400 rounded-full flex items-center justify-center cursor-pointer transition shadow-lg">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                </label>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-slate-800">{{ request.user.username }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">Click the button to change your photo</p>
+                <p class="text-xs text-slate-300 mt-0.5">JPG, PNG or GIF · Max 5MB</p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" enctype="multipart/form-data" class="px-6 py-5 space-y-4">
+            {% csrf_token %}
+
+            <!-- Hidden avatar input -->
+            <div class="hidden">
+                {{ form.avatar }}
+            </div>
+
+            <!-- First + Last name -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">First Name</label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <p class="text-xs text-red-500 mt-1">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Last Name</label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <p class="text-xs text-red-500 mt-1">{{ form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Bio -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
+                    Bio <span class="text-slate-400 normal-case font-normal">(optional · max 300 chars)</span>
+                </label>
+                {{ form.bio }}
+                {% if form.bio.errors %}
+                    <p class="text-xs text-red-500 mt-1">{{ form.bio.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Success/error messages -->
+            {% if messages %}
+                {% for message in messages %}
+                <div class="{% if message.tags == 'success' %}bg-green-50 border-green-200 text-green-700{% else %}bg-red-50 border-red-200 text-red-700{% endif %} border rounded-xl px-4 py-3 text-sm flex items-center gap-2">
+                    {% if message.tags == 'success' %}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    {% else %}
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    {% endif %}
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="flex gap-3 pt-2">
+                <a href="{% url 'dashboard' %}"
+                   class="flex-1 text-center py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="flex-1 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold transition">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Live avatar preview
+    document.getElementById('avatar-input').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const img = document.getElementById('preview-img');
+            const initials = document.getElementById('avatar-initials');
+            img.src = ev.target.result;
+            img.classList.remove('hidden');
+            if (initials) initials.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    });
+</script>
+{% endblock %}

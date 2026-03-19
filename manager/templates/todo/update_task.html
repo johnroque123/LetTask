@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Edit Task – Tasklify{% endblock %}
+{% block nav_todo %}active{% endblock %}
+{% block page_title %}Edit Task{% endblock %}
+{% block page_subtitle %}Update task details{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-lg">✏️</div>
+            <div>
+                <h2 class="text-sm font-bold text-slate-800">Edit Task</h2>
+                <p class="text-xs text-slate-400 truncate max-w-xs">{{ task.title }}</p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" class="px-6 py-5 space-y-4">
+            {% csrf_token %}
+
+            <!-- Title -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Task Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <p class="text-xs text-red-500 mt-1">{{ form.title.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Priority + Category side by side -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Priority</label>
+                    {{ form.priority }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Category</label>
+                    {{ form.category }}
+                </div>
+            </div>
+
+            <!-- Due Date -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Due Date</label>
+                {{ form.due_date }}
+                {% if form.due_date.errors %}
+                    <p class="text-xs text-red-500 mt-1">{{ form.due_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3 pt-2">
+                <a href="{% url 'dashboard' %}"
+                   class="flex-1 text-center py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="flex-1 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold transition">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

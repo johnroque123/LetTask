@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Delete Task – Tasklify{% endblock %}
+{% block page_title %}Delete Task{% endblock %}
+{% block page_subtitle %}This action cannot be undone{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+
+        <!-- Warning header -->
+        <div class="bg-red-50 border-b border-red-100 px-6 py-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center text-2xl flex-shrink-0">🗑️</div>
+            <div>
+                <h2 class="text-sm font-bold text-red-700">Delete this task?</h2>
+                <p class="text-xs text-red-400 mt-0.5">Once deleted, it cannot be recovered.</p>
+            </div>
+        </div>
+
+        <!-- Task preview -->
+        <div class="px-6 py-5 border-b border-slate-100">
+            <div class="bg-slate-50 rounded-xl px-4 py-3 space-y-2">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full flex-shrink-0
+                        {% if task.priority == 'high' %}bg-red-400
+                        {% elif task.priority == 'medium' %}bg-amber-400
+                        {% else %}bg-green-400{% endif %}"></span>
+                    <span class="text-sm font-semibold text-slate-800">{{ task.title }}</span>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap pl-4">
+                    {% if task.priority == 'high' %}
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-600 font-semibold">High Priority</span>
+                    {% elif task.priority == 'medium' %}
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 font-semibold">Medium Priority</span>
+                    {% else %}
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-600 font-semibold">Low Priority</span>
+                    {% endif %}
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-medium capitalize">{{ task.get_category_display }}</span>
+                    {% if task.due_date %}
+                    <span class="text-xs text-slate-400">📅 {{ task.due_date }}</span>
+                    {% endif %}
+                    {% if task.is_completed %}
+                    <span class="text-xs text-green-500 font-semibold">✓ Completed</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="px-6 py-5 flex gap-3">
+            <a href="/calendar/?year={{ year }}&month={{ month }}"
+               class="flex-1 text-center py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                Cancel
+            </a>
+            <form method="POST" class="flex-1">
+                {% csrf_token %}
+                <button type="submit"
+                        class="w-full py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition">
+                    Yes, Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ form_title }} – Tasklify{% endblock %}
+{% block page_title %}{{ form_title }}{% endblock %}
+{% block page_subtitle %}{% if is_edit %}Update task details{% else %}Schedule a new task{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+
+        <!-- Card header -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg
+                {% if is_edit %}bg-blue-50{% else %}bg-green-50{% endif %}">
+                {% if is_edit %}✏️{% else %}📅{% endif %}
+            </div>
+            <div>
+                <h2 class="text-sm font-bold text-slate-800">{{ form_title }}</h2>
+                <p class="text-xs text-slate-400">
+                    {% if due_date %}For {{ due_date }}{% elif task.due_date %}Due {{ task.due_date }}{% else %}Fill in the details below{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" class="px-6 py-5 space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Task Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <p class="text-xs text-red-500 mt-1">{{ form.title.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Priority</label>
+                    {{ form.priority }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Category</label>
+                    {{ form.category }}
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Due Date</label>
+                {{ form.due_date }}
+                {% if form.due_date.errors %}
+                    <p class="text-xs text-red-500 mt-1">{{ form.due_date.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <a href="/calendar/?year={{ year }}&month={{ month }}"
+                   class="flex-1 text-center py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white transition
+                            {% if is_edit %}bg-blue-500 hover:bg-blue-600{% else %}bg-green-500 hover:bg-green-600{% endif %}">
+                    {% if is_edit %}Save Changes{% else %}Add Task{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

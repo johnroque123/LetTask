@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP – Tasklify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'DM Sans', sans-serif; }
+        .brand-font { font-family: 'Syne', sans-serif; }
+        .bg-pattern {
+            background-color: #0f172a;
+            background-image: radial-gradient(circle at 20% 50%, rgba(59,130,246,0.15) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 20%, rgba(99,102,241,0.1) 0%, transparent 40%),
+                              radial-gradient(circle at 60% 80%, rgba(16,185,129,0.08) 0%, transparent 40%);
+        }
+        .card-glow { box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 20px 60px rgba(0,0,0,0.4); }
+        .otp-input {
+            width: 3rem; height: 3.5rem;
+            text-align: center; font-size: 1.5rem; font-weight: 700;
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgb(51,65,85);
+            color: #e2e8f0; border-radius: 0.75rem;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            font-family: 'Syne', sans-serif;
+        }
+        .otp-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+        .otp-input.filled { border-color: #3b82f6; }
+    </style>
+</head>
+<body class="bg-pattern min-h-screen flex flex-col items-center justify-between p-4">
+
+    <div class="flex-1 flex flex-col items-center justify-center w-full">
+    <div class="w-full max-w-sm">
+
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-2.5 mb-4">
+                <div class="w-9 h-9 bg-blue-500 rounded-xl flex items-center justify-center">
+                    <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+                        <path d="M2 4h12M2 8h8M2 12h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="13" cy="8" r="2.5" fill="white"/>
+                    </svg>
+                </div>
+                <span class="brand-font text-white text-2xl" style="font-weight:800;">Tasklify</span>
+            </div>
+            <p class="text-slate-400 text-sm">Two-factor verification</p>
+        </div>
+
+        <div class="bg-slate-800/70 backdrop-blur-sm rounded-2xl p-7 card-glow">
+
+            <div class="flex justify-center mb-5">
+                <div class="w-14 h-14 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-center">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="2"/>
+                        <path d="M7 8h.01M12 8h.01M17 8h.01M7 12h.01M12 12h.01M17 12h.01M7 16h.01M12 16h.01"/>
+                    </svg>
+                </div>
+            </div>
+
+            <h2 class="brand-font text-white text-xl font-bold text-center mb-1">Enter OTP</h2>
+            <p class="text-slate-400 text-sm text-center mb-6">
+                We sent a 6-digit code to <span class="text-slate-300 font-medium">{{ masked_email }}</span>.
+                It expires in <span class="text-blue-400 font-medium">5 minutes</span>.
+            </p>
+
+            {% if error %}
+            <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-xl mb-4 text-center">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" id="otp-form">
+                {% csrf_token %}
+                <input type="hidden" name="otp" id="otp-hidden">
+
+                <div class="flex justify-center gap-2 mb-6" id="otp-boxes">
+                    {% for i in "123456" %}
+                    <input type="text" inputmode="numeric" maxlength="1" class="otp-input" autocomplete="off">
+                    {% endfor %}
+                </div>
+
+                <button type="submit" id="submit-btn"
+                    class="w-full bg-blue-500 hover:bg-blue-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-xl transition text-sm"
+                    disabled>
+                    Verify Code →
+                </button>
+            </form>
+
+            <p class="text-center text-sm text-slate-500 mt-5">
+                Wrong account?
+                <a href="{% url 'login' %}" class="text-blue-400 hover:text-blue-300 font-medium transition">Back to login</a>
+            </p>
+        </div>
+
+    </div>
+    </div>
+
+    <footer class="w-full text-center pt-5 pb-6">
+        <p class="text-slate-500 text-xs">© {% now "Y" %} Tasklify · Aemard Roque. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const boxes = document.querySelectorAll('.otp-input');
+        const hidden = document.getElementById('otp-hidden');
+        const submitBtn = document.getElementById('submit-btn');
+
+        function updateHidden() {
+            const code = Array.from(boxes).map(b => b.value).join('');
+            hidden.value = code;
+            submitBtn.disabled = code.length < 6;
+            boxes.forEach(b => b.classList.toggle('filled', b.value.length === 1));
+        }
+
+        boxes.forEach((box, i) => {
+            box.addEventListener('input', e => {
+                box.value = box.value.replace(/\D/g, '').slice(-1);
+                updateHidden();
+                if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
+            });
+            box.addEventListener('keydown', e => {
+                if (e.key === 'Backspace' && !box.value && i > 0) boxes[i - 1].focus();
+            });
+            box.addEventListener('paste', e => {
+                e.preventDefault();
+                const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+                pasted.split('').forEach((ch, j) => { if (boxes[j]) boxes[j].value = ch; });
+                updateHidden();
+                const next = Math.min(pasted.length, boxes.length - 1);
+                boxes[next].focus();
+            });
+        });
+
+        boxes[0].focus();
+    </script>
+</body>
+</html>

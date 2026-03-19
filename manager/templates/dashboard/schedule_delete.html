@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Delete Schedule – Tasklify{% endblock %}
+{% block nav_schedule %}active{% endblock %}
+{% block page_title %}Delete Schedule{% endblock %}
+{% block page_subtitle %}This action cannot be undone{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+
+        <!-- Warning header -->
+        <div class="bg-red-50 border-b border-red-100 px-6 py-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center text-2xl shrink-0">🗑️</div>
+            <div>
+                <h2 class="text-sm font-bold text-red-700">Delete this schedule?</h2>
+                <p class="text-xs text-red-400 mt-0.5">Once deleted, it cannot be recovered.</p>
+            </div>
+        </div>
+
+        <!-- Schedule preview -->
+        <div class="px-6 py-5 border-b border-slate-100">
+            <div class="bg-slate-50 rounded-xl px-4 py-3 space-y-2">
+                <p class="text-sm font-semibold text-slate-800">{{ schedule.title }}</p>
+                <div class="flex items-center gap-2 flex-wrap text-xs text-slate-500">
+                    <span>📅 {{ schedule.date }}</span>
+                    {% if schedule.start_time %}<span>🕐 {{ schedule.start_time|time:"g:i A" }}</span>{% endif %}
+                    {% if schedule.end_time %}<span>– {{ schedule.end_time|time:"g:i A" }}</span>{% endif %}
+                    <span class="capitalize">{{ schedule.get_category_display }}</span>
+                    <span class="capitalize">{{ schedule.get_priority_display }} priority</span>
+                    {% if schedule.repeat != 'none' %}<span>🔁 {{ schedule.get_repeat_display }}</span>{% endif %}
+                </div>
+                {% if schedule.description %}
+                <p class="text-xs text-slate-400 italic">{{ schedule.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="px-6 py-5 flex gap-3">
+            <a href="{% url 'schedule' %}"
+               class="flex-1 text-center py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                Cancel
+            </a>
+            <form method="POST" class="flex-1">
+                {% csrf_token %}
+                <button type="submit"
+                        class="w-full py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition">
+                    Yes, Delete
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

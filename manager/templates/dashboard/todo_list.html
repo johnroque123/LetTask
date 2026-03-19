@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}To-Do List – Tasklify{% endblock %}
+{% block nav_todo %}active{% endblock %}
+{% block page_title %}To-Do List{% endblock %}
+{% block page_subtitle %}Manage all your tasks{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-5">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-2xl px-4 py-2.5 flex-1 min-w-0 max-w-sm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400 shrink-0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchInput" placeholder="Search tasks..." oninput="filterTable()" class="flex-1 text-sm text-slate-700 bg-transparent focus:outline-none placeholder-slate-400 min-w-0">
+        </div>
+        <a href="{% url 'calendar_add_task' %}" class="flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-2xl transition shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Task
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 px-5 py-3 flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+            <a href="?status=all&priority={{ current_priority }}&category={{ current_category }}" class="text-xs px-3 py-1.5 rounded-lg font-semibold transition {% if current_status == 'all' %}bg-white text-slate-800 shadow-sm{% else %}text-slate-500 hover:text-slate-700{% endif %}">All</a>
+            <a href="?status=pending&priority={{ current_priority }}&category={{ current_category }}" class="text-xs px-3 py-1.5 rounded-lg font-semibold transition {% if current_status == 'pending' %}bg-white text-slate-800 shadow-sm{% else %}text-slate-500 hover:text-slate-700{% endif %}">Pending</a>
+            <a href="?status=done&priority={{ current_priority }}&category={{ current_category }}" class="text-xs px-3 py-1.5 rounded-lg font-semibold transition {% if current_status == 'done' %}bg-white text-slate-800 shadow-sm{% else %}text-slate-500 hover:text-slate-700{% endif %}">Done</a>
+        </div>
+        <select onchange="applyFilter('priority', this.value)" class="text-xs border border-slate-200 rounded-xl px-3 py-1.5 text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white">
+            <option value="all" {% if current_priority == 'all' %}selected{% endif %}>All Priorities</option>
+            <option value="high" {% if current_priority == 'high' %}selected{% endif %}>🔴 High</option>
+            <option value="medium" {% if current_priority == 'medium' %}selected{% endif %}>🟡 Medium</option>
+            <option value="low" {% if current_priority == 'low' %}selected{% endif %}>🟢 Low</option>
+        </select>
+        <select onchange="applyFilter('category', this.value)" class="text-xs border border-slate-200 rounded-xl px-3 py-1.5 text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white">
+            <option value="all" {% if current_category == 'all' %}selected{% endif %}>All Categories</option>
+            <option value="work" {% if current_category == 'work' %}selected{% endif %}>💼 Work</option>
+            <option value="personal" {% if current_category == 'personal' %}selected{% endif %}>🙋 Personal</option>
+            <option value="school" {% if current_category == 'school' %}selected{% endif %}>📚 School</option>
+            <option value="health" {% if current_category == 'health' %}selected{% endif %}>❤️ Health</option>
+            <option value="finance" {% if current_category == 'finance' %}selected{% endif %}>💰 Finance</option>
+            <option value="other" {% if current_category == 'other' %}selected{% endif %}>📌 Other</option>
+        </select>
+        <span class="ml-auto bg-slate-100 text-slate-600 text-xs px-2.5 py-1 rounded-full font-semibold" id="taskCount">{{ tasks|length }} task{{ tasks|length|pluralize }}</span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-white rounded-2xl border border-slate-200 px-4 py-3"><p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Total</p><p class="text-2xl font-bold text-slate-800 brand-font">{{ stat_total }}</p></div>
+        <div class="bg-white rounded-2xl border border-slate-200 px-4 py-3"><p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Pending</p><p class="text-2xl font-bold text-amber-500 brand-font">{{ stat_pending }}</p></div>
+        <div class="bg-white rounded-2xl border border-slate-200 px-4 py-3"><p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Done</p><p class="text-2xl font-bold text-green-500 brand-font">{{ stat_done }}</p></div>
+        <div class="bg-white rounded-2xl border border-slate-200 px-4 py-3"><p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Overdue</p><p class="text-2xl font-bold text-red-500 brand-font">{{ stat_overdue }}</p></div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        {% if tasks %}
+        <div class="overflow-x-auto">
+            <table class="w-full" id="todoTable">
+                <thead>
+                    <tr class="border-b border-slate-100 bg-slate-50">
+                        <th class="text-left px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-px">#</th>
+                        <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider"><button onclick="sortTable('title')" class="flex items-center gap-1 hover:text-slate-800 transition">Task <span class="text-slate-300" id="sort-title">↕</span></button></th>
+                        <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Category</th>
+                        <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider"><button onclick="sortTable('priority')" class="flex items-center gap-1 hover:text-slate-800 transition">Priority <span class="text-slate-300" id="sort-priority">↕</span></button></th>
+                        <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider hidden md:table-cell"><button onclick="sortTable('due')" class="flex items-center gap-1 hover:text-slate-800 transition">Due Date <span class="text-slate-300" id="sort-due">↕</span></button></th>
+                        <th class="text-left px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                        <th class="text-right px-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50" id="todoBody">
+                    {% for task in tasks %}
+                    <tr class="hover:bg-slate-50 transition group {% if task.is_completed %}opacity-60{% endif %}" data-title="{{ task.title|lower }}" data-priority="{{ task.priority }}" data-due="{{ task.due_date|default:'' }}">
+                        <td class="px-5 py-3.5 text-xs text-slate-400 font-medium">{{ forloop.counter }}</td>
+                        <td class="px-4 py-3.5 max-w-xs">
+                            <p class="text-sm font-semibold truncate {% if task.is_completed %}text-slate-400 line-through{% else %}text-slate-800{% endif %}">{{ task.title }}</p>
+                            {% if task.due_date %}<p class="text-xs text-slate-400 mt-0.5 md:hidden">📅 {{ task.due_date }}</p>{% endif %}
+                            <p class="text-xs text-slate-400 mt-0.5 sm:hidden capitalize">{{ task.get_category_display }}</p>
+                        </td>
+                        <td class="px-4 py-3.5 hidden sm:table-cell">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">
+                                {% if task.category == 'work' %}💼{% elif task.category == 'personal' %}🙋{% elif task.category == 'school' %}📚{% elif task.category == 'health' %}❤️{% elif task.category == 'finance' %}💰{% else %}📌{% endif %}
+                                {{ task.get_category_display }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3.5">
+                            {% if task.priority == 'high' %}<span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-red-100 text-red-600"><span class="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span> High</span>
+                            {% elif task.priority == 'medium' %}<span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-amber-100 text-amber-600"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span> Medium</span>
+                            {% else %}<span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-green-100 text-green-600"><span class="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span> Low</span>{% endif %}
+                        </td>
+                        <td class="px-4 py-3.5 hidden md:table-cell">
+                            {% if task.due_date %}<span class="text-xs {% if task.is_overdue %}text-red-500 font-semibold{% else %}text-slate-500{% endif %}">{{ task.due_date }}{% if task.is_overdue %} <span class="ml-1">⚠️</span>{% endif %}</span>
+                            {% else %}<span class="text-xs text-slate-300">—</span>{% endif %}
+                        </td>
+                        <td class="px-4 py-3.5">
+                            <form method="POST" action="{% url 'toggle_task' task.id %}">{% csrf_token %}
+                                <button type="submit" class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg transition {% if task.is_completed %}bg-green-100 text-green-600 hover:bg-green-200{% else %}bg-slate-100 text-slate-500 hover:bg-slate-200{% endif %}">
+                                    {% if task.is_completed %}✓ Done{% else %}⏳ Pending{% endif %}
+                                </button>
+                            </form>
+                        </td>
+                        <td class="px-5 py-3.5 text-right">
+                            <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition">
+                                <a href="{% url 'calendar_edit_task' task.id %}" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-500 transition" title="Edit">✏️</a>
+                                <a href="{% url 'calendar_delete_task' task.id %}" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition" title="Delete">🗑</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-16">
+            <div class="text-4xl mb-3">✅</div>
+            <p class="text-sm text-slate-400 font-medium">No tasks found.</p>
+            <p class="text-xs text-slate-300 mt-1">Adjust filters or create a new task.</p>
+            <a href="{% url 'calendar_add_task' %}" class="inline-block mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded-xl transition">+ New Task</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+function applyFilter(key, value) { const params = new URLSearchParams(window.location.search); params.set(key, value); window.location.search = params.toString(); }
+function filterTable() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#todoBody tr'); let visible = 0;
+    rows.forEach(row => { const show = (row.dataset.title||'').includes(query); row.style.display = show ? '' : 'none'; if (show) visible++; });
+    document.getElementById('taskCount').textContent = `${visible} task${visible!==1?'s':''}`;
+}
+let sortState = { col: null, asc: true };
+function sortTable(col) {
+    const tbody = document.getElementById('todoBody'); const rows = Array.from(tbody.querySelectorAll('tr'));
+    const asc = sortState.col === col ? !sortState.asc : true; sortState = { col, asc };
+    ['title','priority','due'].forEach(c => { const el = document.getElementById(`sort-${c}`); if (el) el.textContent = '↕'; });
+    const ind = document.getElementById(`sort-${col}`); if (ind) ind.textContent = asc ? '↑' : '↓';
+    const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
+    rows.sort((a, b) => {
+        if (col==='title') { const va=a.dataset.title||'',vb=b.dataset.title||''; return asc?va.localeCompare(vb):vb.localeCompare(va); }
+        if (col==='priority') { const va=PRIORITY_ORDER[a.dataset.priority]??9,vb=PRIORITY_ORDER[b.dataset.priority]??9; return asc?va-vb:vb-va; }
+        if (col==='due') { const va=a.dataset.due||'9999-99-99',vb=b.dataset.due||'9999-99-99'; return asc?va.localeCompare(vb):vb.localeCompare(va); }
+        return 0;
+    });
+    rows.forEach(r => tbody.appendChild(r));
+}
+</script>
+{% endblock %}
