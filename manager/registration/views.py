@@ -118,7 +118,7 @@ def register(request):
 
             try:
                 send_mail(
-                    subject='Verify your Tasklify account',
+                    subject='Verify your LetTask account',
                     message=(
                         f'Hi {user.username},\n\n'
                         f'Your verification code is: {code}\n\n'
@@ -332,7 +332,7 @@ def forgot_password_view(request):
 
             try:
                 send_mail(
-                    subject='Reset your Tasklify password',
+                    subject='Reset your LetTask password',
                     message=(
                         f'Hi {user.username},\n\n'
                         f'Your password reset code is: {code}\n\n'
@@ -511,7 +511,7 @@ def chatbot(request):
         response = client.models.generate_content(
             model="gemini-2.0-flash",
             contents=(
-                f"You are a helpful task assistant for Tasklify. "
+                f"You are a helpful task assistant for LetTask. "
                 f"The user's name is {request.user.username}. "
                 f"Their pending tasks are: {task_list}. "
                 f"Keep responses short, friendly, and helpful. "

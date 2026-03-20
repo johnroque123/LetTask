@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+{% block title %}Notes – Tasklify{% endblock %}
+{% block nav_notes %}active{% endblock %}
+{% block page_title %}Notes{% endblock %}
+{% block page_subtitle %}Your personal notes{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto space-y-6">
+
+    <!-- Top bar -->
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                     width="15" height="15" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="search-input" placeholder="Search notes..."
+                       class="pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl
+                              focus:outline-none focus:ring-2 focus:ring-blue-500 w-56">
+            </div>
+            <span id="note-count" class="text-xs text-slate-400 font-medium">
+                {{ total }} note{{ total|pluralize }}
+            </span>
+        </div>
+        <button onclick="openCreateModal()"
+                class="flex items-center gap-2 px-4 py-2.5 text-white text-sm font-semibold rounded-2xl transition shrink-0"
+                style="background: linear-gradient(135deg, #1e293b, #334155);">
+            + New Note
+        </button>
+    </div>
+
+    <!-- Pinned section -->
+    {% if pinned %}
+    <div id="pinned-section">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+            </svg>
+            Pinned
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" id="pinned-grid">
+            {% for note in pinned %}
+                {% include "notes/_note_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Others section -->
+    {% if others %}
+    <div id="others-section">
+        {% if pinned %}
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Others</p>
+        {% endif %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" id="notes-grid">
+            {% for note in others %}
+                {% include "notes/_note_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Empty state -->
+    {% if not pinned and not others %}
+    <div id="empty-state" class="bg-white rounded-2xl border border-slate-200 text-center py-20">
+        <div class="text-4xl mb-3">📝</div>
+        <p class="text-sm font-semibold text-slate-600">No notes yet.</p>
+        <p class="text-xs text-slate-400 mt-1">Click + New Note to create your first one.</p>
+        <button onclick="openCreateModal()"
+                class="inline-block mt-4 px-5 py-2.5 text-white text-sm font-semibold rounded-xl transition"
+                style="background: linear-gradient(135deg, #1e293b, #334155);">
+            + New Note
+        </button>
+    </div>
+    {% endif %}
+
+</div>
+
+
+<!-- ── Modal ──────────────────────────────────────────────────────── -->
+<div id="note-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal()"></div>
+    <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden z-10">
+
+        <div id="modal-color-bar" class="h-2 w-full transition-colors duration-200"
+             style="background:#fde047;"></div>
+
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="modal-heading" class="text-base font-bold text-slate-800">New Note</h3>
+                <button onclick="closeModal()"
+                        class="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+            </div>
+
+            <!-- Color swatches -->
+            <div class="flex items-center gap-2 mb-4">
+                <button type="button" onclick="selectColor('yellow')" data-color="yellow"
+                        class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
+                        style="background:#fef9c3; border:2px solid #64748b;" title="Yellow"></button>
+                <button type="button" onclick="selectColor('blue')"   data-color="blue"
+                        class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
+                        style="background:#dbeafe; border:2px solid transparent;" title="Blue"></button>
+                <button type="button" onclick="selectColor('green')"  data-color="green"
+                        class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
+                        style="background:#dcfce7; border:2px solid transparent;" title="Green"></button>
+                <button type="button" onclick="selectColor('pink')"   data-color="pink"
+                        class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
+                        style="background:#fce7f3; border:2px solid transparent;" title="Pink"></button>
+                <button type="button" onclick="selectColor('purple')" data-color="purple"
+                        class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
+                        style="background:#ede9fe; border:2px solid transparent;" title="Purple"></button>
+                <button type="button" onclick="selectColor('white')"  data-color="white"
+                        class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
+                        style="background:#ffffff; border:2px solid #e2e8f0;" title="White"></button>
+            </div>
+
+            <input type="text" id="modal-title" placeholder="Title (optional)"
+                   class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm
+                          focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3">
+            <textarea id="modal-content" placeholder="Write your note..." rows="5"
+                      class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm
+                             focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+            <p id="modal-error" class="text-xs text-red-500 mt-1 hidden">Content cannot be empty.</p>
+
+            <div class="flex gap-3 mt-4">
+                <button onclick="closeModal()"
+                        class="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold
+                               text-slate-600 hover:bg-slate-50 transition">
+                    Cancel
+                </button>
+                <button id="modal-save-btn" onclick="saveNote()"
+                        class="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-700
+                               text-white text-sm font-semibold transition">
+                    Save Note
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+const CSRF       = '{{ csrf_token }}';
+const CREATE_URL = '{% url "note_create" %}';
+
+const COLOR_HEX = {
+    yellow: '#fef9c3',
+    blue:   '#dbeafe',
+    green:  '#dcfce7',
+    pink:   '#fce7f3',
+    purple: '#ede9fe',
+    white:  '#ffffff',
+};
+const COLOR_BAR = {
+    yellow: '#fde047',
+    blue:   '#60a5fa',
+    green:  '#4ade80',
+    pink:   '#f472b6',
+    purple: '#a78bfa',
+    white:  '#e2e8f0',
+};
+
+let activeColor   = 'yellow';
+let editingNoteId = null;
+
+
+// ── Open modal for creating ───────────────────────────────────────
+function openCreateModal() {
+    editingNoteId = null;
+    document.getElementById('modal-heading').textContent = 'New Note';
+    document.getElementById('modal-title').value         = '';
+    document.getElementById('modal-content').value       = '';
+    document.getElementById('modal-error').classList.add('hidden');
+    document.getElementById('modal-save-btn').textContent = 'Save Note';
+    selectColor('yellow');
+    document.getElementById('note-modal').classList.replace('hidden', 'flex');
+    document.getElementById('modal-title').focus();
+}
+
+
+// ── Open modal from card data-* attributes ────────────────────────
+function openEditFromCard(el) {
+    openEditModal(
+        el.dataset.noteId,
+        el.dataset.title,
+        el.dataset.content,
+        el.dataset.color
+    );
+}
+
+function openEditModal(id, title, content, color) {
+    editingNoteId = id;
+    document.getElementById('modal-heading').textContent  = 'Edit Note';
+    document.getElementById('modal-title').value          = title;
+    document.getElementById('modal-content').value        = content;
+    document.getElementById('modal-error').classList.add('hidden');
+    document.getElementById('modal-save-btn').textContent = 'Save Changes';
+    selectColor(color || 'yellow');
+    document.getElementById('note-modal').classList.replace('hidden', 'flex');
+    document.getElementById('modal-content').focus();
+}
+
+
+// ── Close modal ───────────────────────────────────────────────────
+function closeModal() {
+    document.getElementById('note-modal').classList.replace('flex', 'hidden');
+    editingNoteId = null;
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+
+// ── Color picker ─────────────────────────────────────────────────
+function selectColor(color) {
+    activeColor = color;
+    document.querySelectorAll('.color-swatch').forEach(s => {
+        s.style.borderColor = s.dataset.color === color ? '#64748b' : 'transparent';
+        if (s.dataset.color === 'white') {
+            s.style.borderColor = s.dataset.color === color ? '#64748b' : '#e2e8f0';
+        }
+    });
+    document.getElementById('modal-color-bar').style.backgroundColor = COLOR_BAR[color] || '#e2e8f0';
+}
+
+
+// ── Save (create or update) ───────────────────────────────────────
+async function saveNote() {
+    const title   = document.getElementById('modal-title').value.trim();
+    const content = document.getElementById('modal-content').value.trim();
+    const errEl   = document.getElementById('modal-error');
+
+    if (!content) {
+        errEl.classList.remove('hidden');
+        document.getElementById('modal-content').focus();
+        return;
+    }
+    errEl.classList.add('hidden');
+
+    const btn = document.getElementById('modal-save-btn');
+    btn.disabled    = true;
+    btn.textContent = 'Saving…';
+
+    try {
+        if (editingNoteId) {
+            const res  = await fetch(`/notes/${editingNoteId}/update/`, {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+                body:    JSON.stringify({ title, content, color: activeColor }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                const card = document.querySelector(`[data-note-id="${editingNoteId}"]`);
+                if (card) {
+                    card.style.backgroundColor        = COLOR_HEX[activeColor] || '#fff';
+                    card.dataset.title                = title;
+                    card.dataset.content              = content;
+                    card.dataset.titleraw             = title.toLowerCase();
+                    card.dataset.contentraw           = content.toLowerCase();
+                    card.dataset.color                = activeColor;
+                    card.querySelector('.note-title').textContent   = title || 'Untitled';
+                    card.querySelector('.note-content').textContent = content;
+                    card.querySelector('.note-date').textContent    = data.updated;
+                }
+                closeModal();
+            }
+        } else {
+            const form = new FormData();
+            form.append('title',   title);
+            form.append('content', content);
+            form.append('color',   activeColor);
+
+            const res  = await fetch(CREATE_URL, {
+                method:  'POST',
+                headers: { 'X-CSRFToken': CSRF },
+                body:    form,
+            });
+            const data = await res.json();
+            if (data.ok) {
+                prependCard(data);
+                closeModal();
+                updateCount(1);
+            }
+        }
+    } catch (err) {
+        console.error(err);
+    } finally {
+        btn.disabled    = false;
+        btn.textContent = editingNoteId ? 'Save Changes' : 'Save Note';
+    }
+}
+
+
+// ── Build and prepend a new card into the DOM ─────────────────────
+function prependCard(data) {
+    let grid = document.getElementById('notes-grid');
+
+    if (!grid) {
+        // Others section doesn't exist yet — create it
+        const section  = document.createElement('div');
+        section.id     = 'others-section';
+        section.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+                 id="notes-grid"></div>`;
+        document.querySelector('.max-w-5xl').appendChild(section);
+        grid = document.getElementById('notes-grid');
+    }
+
+    const bg = COLOR_HEX[data.color] || '#ffffff';
+    grid.insertAdjacentHTML('afterbegin', `
+        <div class="note-card group relative rounded-2xl border border-slate-200 p-4 cursor-pointer transition hover:shadow-md"
+             style="background-color:${bg};"
+             data-note-id="${data.id}"
+             data-title="${escAttr(data.title)}"
+             data-content="${escAttr(data.content)}"
+             data-titleraw="${escAttr((data.title || '').toLowerCase())}"
+             data-contentraw="${escAttr(data.content.toLowerCase())}"
+             data-color="${data.color}"
+             onclick="openEditFromCard(this)">
+            <div class="flex items-start justify-between gap-2 mb-2">
+                <p class="note-title text-sm font-semibold text-slate-800 truncate">
+                    ${data.title ? escHtml(data.title) : '<span class="text-slate-400 font-normal text-xs">Untitled</span>'}
+                </p>
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition shrink-0"
+                     onclick="event.stopPropagation()">
+                    <button onclick="togglePin(${data.id}, this)" title="Pin"
+                            class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/10 transition text-sm text-slate-400 hover:text-slate-700">
+                        📌
+                    </button>
+                    <button onclick="deleteNote(${data.id}, this)" title="Delete"
+                            class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-100 text-slate-400 hover:text-red-500 transition text-sm">
+                        🗑
+                    </button>
+                </div>
+            </div>
+            <p class="note-content text-xs text-slate-600 leading-relaxed line-clamp-6 whitespace-pre-wrap">
+                ${escHtml(data.content)}
+            </p>
+            <p class="note-date text-xs text-slate-400 mt-3">${data.updated}</p>
+        </div>
+    `);
+
+    const empty = document.getElementById('empty-state');
+    if (empty) empty.style.display = 'none';
+}
+
+
+// ── Pin toggle ────────────────────────────────────────────────────
+async function togglePin(id, btn) {
+    const res  = await fetch(`/notes/${id}/pin/`, {
+        method: 'POST', headers: { 'X-CSRFToken': CSRF },
+    });
+    const data = await res.json();
+    if (data.ok) {
+        // Reload so pinned/unpinned sections re-sort correctly
+        location.reload();
+    }
+}
+
+
+// ── Delete ────────────────────────────────────────────────────────
+async function deleteNote(id, btn) {
+    if (!confirm('Delete this note?')) return;
+    const res  = await fetch(`/notes/${id}/delete/`, {
+        method: 'POST', headers: { 'X-CSRFToken': CSRF },
+    });
+    const data = await res.json();
+    if (data.ok) {
+        const card = document.querySelector(`[data-note-id="${id}"]`);
+        if (card) card.remove();
+        updateCount(-1);
+        checkEmptyState();
+    }
+}
+
+
+// ── Search ────────────────────────────────────────────────────────
+document.getElementById('search-input').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.note-card').forEach(card => {
+        const haystack = (card.dataset.titleraw || '') + ' ' + (card.dataset.contentraw || '');
+        card.style.display = haystack.includes(q) ? '' : 'none';
+    });
+});
+
+
+// ── Helpers ───────────────────────────────────────────────────────
+function updateCount(delta) {
+    const el = document.getElementById('note-count');
+    if (!el) return;
+    const n = Math.max((parseInt(el.textContent) || 0) + delta, 0);
+    el.textContent = `${n} note${n !== 1 ? 's' : ''}`;
+}
+
+function checkEmptyState() {
+    const remaining = document.querySelectorAll('.note-card').length;
+    if (remaining === 0) location.reload();
+}
+
+function escHtml(str) {
+    return (str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function escAttr(str) {
+    return (str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+</script>
+{% endblock %}

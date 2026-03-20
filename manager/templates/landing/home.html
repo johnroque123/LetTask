@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LetTask — Do more. Drift less.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #080b12; color: #e8eaf0; overflow-x: hidden; }
+  .brand { font-family: 'Syne', sans-serif; font-weight: 800; }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 18px 40px; display: flex; align-items: center; justify-content: space-between;
+    background: rgba(8,11,18,0.8); backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-box { width: 30px; height: 30px; background: #3b82f6; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  a.nav-link { font-size: 13px; font-weight: 500; color: #6b7280; text-decoration: none; transition: color 0.15s; }
+  a.nav-link:hover { color: #e8eaf0; }
+  .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 9px 20px; border-radius: 10px; text-decoration: none; transition: all 0.15s; border: none; cursor: pointer; }
+  .btn-primary { background: #3b82f6; color: #fff; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-outline { background: transparent; color: #e8eaf0; border: 1px solid rgba(255,255,255,0.1); }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+  .fu  { animation: fadeUp 0.6s ease both; }
+  .d1  { animation-delay: 0.1s; }
+  .d2  { animation-delay: 0.2s; }
+  .d3  { animation-delay: 0.3s; }
+  .d4  { animation-delay: 0.45s; }
+  .card { background: #0d1220; border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px; transition: border-color 0.2s, transform 0.2s; }
+  .card:hover { border-color: rgba(59,130,246,0.25); transform: translateY(-2px); }
+  footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 32px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="logo-box">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <path d="M2 4h12M2 8h8M2 12h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="13" cy="8" r="2.5" fill="white"/>
+      </svg>
+    </div>
+    <span class="brand" style="color:#fff;font-size:18px;">Let<span style="color:#93c5fd;">Task</span></span>
+  </a>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/about/" class="nav-link">About</a>
+    <a href="#features" class="nav-link">Features</a>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <a href="/registration/login/" class="btn btn-outline">Log in</a>
+    <a href="/registration/" class="btn btn-primary">Get started</a>
+  </div>
+</nav>
+
+
+<!-- Hero -->
+<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 40px 80px;text-align:center;position:relative;overflow:hidden;">
+  <div style="position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(59,130,246,0.12) 0%,transparent 70%);pointer-events:none;"></div>
+  <div style="position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse 70% 60% at 50% 0%,black,transparent);"></div>
+  <div style="position:relative;z-index:1;max-width:700px;">
+    <div class="fu" style="display:inline-flex;align-items:center;gap:7px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:99px;padding:5px 14px;margin-bottom:28px;">
+      <span style="width:6px;height:6px;background:#3b82f6;border-radius:50%;display:inline-block;"></span>
+      <span style="font-size:12px;color:#93c5fd;font-weight:500;">Tasks · Habits · Notes — all in one place</span>
+    </div>
+    <h1 class="brand fu d1" style="font-size:clamp(44px,7vw,76px);line-height:1.06;letter-spacing:-0.03em;color:#fff;margin-bottom:20px;">
+      Do more.<br>
+      <span style="background:linear-gradient(135deg,#3b82f6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Drift less.</span>
+    </h1>
+    <p class="fu d2" style="font-size:17px;color:#9ca3af;max-width:480px;margin:0 auto 36px;line-height:1.75;font-weight:300;">
+      One focused workspace for your tasks, schedules, habits, and notes. Built for people who want to actually finish things.
+    </p>
+    <div class="fu d3" style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;">
+      <a href="/registration/" class="btn btn-primary" style="padding:12px 26px;font-size:14px;border-radius:11px;">
+        Start free
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="/registration/login/" class="btn btn-outline" style="padding:12px 26px;font-size:14px;border-radius:11px;">Sign in</a>
+    </div>
+    <p class="fu d4" style="font-size:12px;color:#374151;margin-top:18px;">Free forever · No card required</p>
+  </div>
+</section>
+
+
+<!-- App mockup -->
+<section style="padding:0 40px 100px;">
+  <div style="max-width:820px;margin:0 auto;position:relative;">
+    <div style="position:absolute;inset:-20px;background:radial-gradient(ellipse 60% 40% at 50% 50%,rgba(59,130,246,0.1),transparent);border-radius:32px;pointer-events:none;"></div>
+    <div style="background:#111827;border-radius:16px;border:1px solid rgba(255,255,255,0.07);overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.5);position:relative;">
+      <div style="background:#0d1220;padding:11px 16px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#f59e0b;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#22c55e;"></div>
+        <div style="flex:1;display:flex;justify-content:center;">
+          <div style="background:rgba(255,255,255,0.05);border-radius:5px;padding:3px 18px;font-size:10px;color:#4b5563;">lettask.app/dashboard</div>
+        </div>
+      </div>
+      <div style="padding:20px;display:grid;grid-template-columns:180px 1fr;gap:14px;">
+        <div style="background:#0d1220;border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,0.04);">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:18px;">
+            <div style="width:20px;height:20px;background:#3b82f6;border-radius:5px;"></div>
+            <span class="brand" style="font-size:12px;color:#fff;">Let<span style="color:#93c5fd;">Task</span></span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:3px;">
+            <div style="padding:7px 9px;border-radius:7px;background:rgba(59,130,246,0.15);display:flex;align-items:center;gap:7px;"><div style="width:12px;height:12px;border-radius:3px;background:#3b82f6;"></div><span style="font-size:10px;color:#93c5fd;">Dashboard</span></div>
+            <div style="padding:7px 9px;border-radius:7px;background:rgba(255,255,255,0.03);display:flex;align-items:center;gap:7px;"><div style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,0.12);"></div><span style="font-size:10px;color:#4b5563;">Calendar</span></div>
+            <div style="padding:7px 9px;border-radius:7px;background:rgba(255,255,255,0.03);display:flex;align-items:center;gap:7px;"><div style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,0.12);"></div><span style="font-size:10px;color:#4b5563;">Schedule</span></div>
+            <div style="padding:7px 9px;border-radius:7px;background:rgba(255,255,255,0.03);display:flex;align-items:center;gap:7px;"><div style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,0.12);"></div><span style="font-size:10px;color:#4b5563;">To-Do List</span></div>
+            <div style="padding:7px 9px;border-radius:7px;background:rgba(255,255,255,0.03);display:flex;align-items:center;gap:7px;"><div style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,0.12);"></div><span style="font-size:10px;color:#4b5563;">Notes</span></div>
+            <div style="padding:7px 9px;border-radius:7px;background:rgba(255,255,255,0.03);display:flex;align-items:center;gap:7px;"><div style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,0.12);"></div><span style="font-size:10px;color:#4b5563;">Habits</span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:linear-gradient(135deg,#0f172a,#1e293b,#172554);border-radius:10px;padding:16px;border:1px solid rgba(255,255,255,0.05);">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;">
+              <div style="background:rgba(255,255,255,0.05);border-radius:7px;padding:9px;"><p style="font-size:17px;font-weight:700;color:#fff;font-family:'Syne',sans-serif;">12</p><p style="font-size:9px;color:#6b7280;margin-top:1px;">Total</p></div>
+              <div style="background:rgba(255,255,255,0.05);border-radius:7px;padding:9px;"><p style="font-size:17px;font-weight:700;color:#fbbf24;font-family:'Syne',sans-serif;">5</p><p style="font-size:9px;color:#6b7280;margin-top:1px;">Pending</p></div>
+              <div style="background:rgba(255,255,255,0.05);border-radius:7px;padding:9px;"><p style="font-size:17px;font-weight:700;color:#ef4444;font-family:'Syne',sans-serif;">2</p><p style="font-size:9px;color:#6b7280;margin-top:1px;">Overdue</p></div>
+              <div style="background:rgba(255,255,255,0.05);border-radius:7px;padding:9px;"><p style="font-size:17px;font-weight:700;color:#a78bfa;font-family:'Syne',sans-serif;">3</p><p style="font-size:9px;color:#6b7280;margin-top:1px;">Schedules</p></div>
+            </div>
+            <div style="background:rgba(255,255,255,0.07);border-radius:99px;height:4px;overflow:hidden;">
+              <div style="width:58%;height:100%;background:linear-gradient(90deg,#3b82f6,#06b6d4);border-radius:99px;"></div>
+            </div>
+          </div>
+          <div style="background:#0d1220;border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,0.04);">
+            <p style="font-size:9px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Pending Tasks</p>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;align-items:center;gap:7px;padding:7px 9px;background:rgba(255,255,255,0.03);border-radius:7px;border:1px solid rgba(255,255,255,0.04);"><div style="width:6px;height:6px;border-radius:50%;background:#ef4444;flex-shrink:0;"></div><span style="font-size:10px;color:#9ca3af;flex:1;">Finish project proposal</span><span style="font-size:8px;color:#ef4444;font-weight:600;">High</span></div>
+              <div style="display:flex;align-items:center;gap:7px;padding:7px 9px;background:rgba(255,255,255,0.03);border-radius:7px;border:1px solid rgba(255,255,255,0.04);"><div style="width:6px;height:6px;border-radius:50%;background:#fbbf24;flex-shrink:0;"></div><span style="font-size:10px;color:#9ca3af;flex:1;">Review pull requests</span><span style="font-size:8px;color:#fbbf24;font-weight:600;">Med</span></div>
+              <div style="display:flex;align-items:center;gap:7px;padding:7px 9px;background:rgba(255,255,255,0.03);border-radius:7px;border:1px solid rgba(255,255,255,0.04);"><div style="width:6px;height:6px;border-radius:50%;background:#4ade80;flex-shrink:0;"></div><span style="font-size:10px;color:#9ca3af;flex:1;">Update documentation</span><span style="font-size:8px;color:#4ade80;font-weight:600;">Low</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Features -->
+<section id="features" style="padding:80px 40px;background:#0d1220;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);">
+  <div style="max-width:880px;margin:0 auto;">
+    <p style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;text-align:center;">Features</p>
+    <h2 class="brand" style="font-size:clamp(28px,4vw,40px);color:#fff;letter-spacing:-0.02em;text-align:center;margin-bottom:48px;">Everything in one place</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+      <div class="card"><div style="font-size:22px;margin-bottom:10px;">✅</div><h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px;">Tasks</h3><p style="font-size:13px;color:#6b7280;line-height:1.65;">Priority, category, due dates. Filter and sort however you need.</p></div>
+      <div class="card"><div style="font-size:22px;margin-bottom:10px;">🗓</div><h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px;">Calendar & Schedule</h3><p style="font-size:13px;color:#6b7280;line-height:1.65;">Monthly calendar view plus timed schedule entries with repeat rules.</p></div>
+      <div class="card"><div style="font-size:22px;margin-bottom:10px;">🏆</div><h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px;">Habit Tracker</h3><p style="font-size:13px;color:#6b7280;line-height:1.65;">7-day grid, 12-week heatmap, and streak tracking to keep you consistent.</p></div>
+      <div class="card"><div style="font-size:22px;margin-bottom:10px;">📝</div><h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px;">Sticky Notes</h3><p style="font-size:13px;color:#6b7280;line-height:1.65;">Colour-coded notes with pin support. Create and edit without page reloads.</p></div>
+      <div class="card"><div style="font-size:22px;margin-bottom:10px;">🤖</div><h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px;">AI Assistant</h3><p style="font-size:13px;color:#6b7280;line-height:1.65;">Ask about your tasks. Powered by Gemini — always aware of your context.</p></div>
+      <div class="card"><div style="font-size:22px;margin-bottom:10px;">📊</div><h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px;">Custom Dashboard</h3><p style="font-size:13px;color:#6b7280;line-height:1.65;">Drag widgets into your preferred layout. Hide what you don't need.</p></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- CTA -->
+<section style="padding:80px 40px;">
+  <div style="max-width:600px;margin:0 auto;text-align:center;background:linear-gradient(135deg,#0f172a,#1e3a5f);border:1px solid rgba(59,130,246,0.2);border-radius:20px;padding:56px 40px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.15),transparent);pointer-events:none;"></div>
+    <h2 class="brand" style="font-size:clamp(24px,4vw,38px);color:#fff;letter-spacing:-0.02em;margin-bottom:12px;position:relative;">Start building better habits today.</h2>
+    <p style="font-size:14px;color:#9ca3af;margin-bottom:28px;line-height:1.7;position:relative;">Free forever. No subscription. Takes 30 seconds to sign up.</p>
+    <a href="/registration/" class="btn btn-primary" style="padding:13px 28px;font-size:14px;border-radius:11px;position:relative;">
+      Create your account
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  </div>
+</section>
+
+
+<!-- Footer -->
+<footer>
+  <span class="brand" style="color:#4b5563;font-size:14px;">Let<span style="color:#93c5fd;">Task</span></span>
+  <div style="display:flex;gap:20px;">
+    <a href="/about/" class="nav-link" style="font-size:12px;">About</a>
+    <a href="/registration/" class="nav-link" style="font-size:12px;">Sign up</a>
+    <a href="/registration/login/" class="nav-link" style="font-size:12px;">Log in</a>
+  </div>
+  <p style="font-size:12px;color:#374151;">© {% now "Y" %} LetTask · Aemard Roque</p>
+</footer>
+
+</body>
+</html>

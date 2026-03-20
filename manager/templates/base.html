@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Tasklify{% endblock %}</title>
+    <title>{% block title %}LetTask{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%233b82f6'/><rect x='8' y='8' width='3' height='14' rx='1.5' fill='white'/><rect x='8' y='19' width='8' height='3' rx='1.5' fill='white'/><rect x='8' y='8' width='16' height='3' rx='1.5' fill='white'/><rect x='19' y='8' width='3' height='10' rx='1.5' fill='white'/><circle cx='24' cy='22' r='2.5' fill='white'/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
@@ -18,8 +19,6 @@
             .sidebar.open { transform: translateX(0); }
         }
         .overlay.visible { pointer-events: auto !important; opacity: 1 !important; }
-
-        /* Avatar dropdown */
         #avatar-dropdown { display: none; }
         #avatar-dropdown.open { display: block; }
     </style>
@@ -34,13 +33,15 @@
         <!-- Brand -->
         <div class="px-6 py-5 border-b border-slate-700/60">
             <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shrink-0">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M2 4h12M2 8h8M2 12h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="13" cy="8" r="2.5" fill="white"/>
-                    </svg>
-                </div>
-                <span class="brand-font text-white text-xl" style="font-weight:800; font-family:'Syne',sans-serif;">Tasklify</span>
+                <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="#3b82f6"/>
+                    <rect x="8" y="8" width="3" height="14" rx="1.5" fill="white"/>
+                    <rect x="8" y="19" width="8" height="3" rx="1.5" fill="white"/>
+                    <rect x="8" y="8" width="16" height="3" rx="1.5" fill="white"/>
+                    <rect x="19" y="8" width="3" height="10" rx="1.5" fill="white"/>
+                    <circle cx="24" cy="22" r="2.5" fill="white" opacity="0.85"/>
+                </svg>
+                <span class="brand-font text-white text-xl" style="font-weight:800;">Let<span style="color:#93c5fd;">Task</span></span>
             </div>
         </div>
 
@@ -105,6 +106,27 @@
                 </svg>
                 To-Do List
             </a>
+
+            <a href="{% url 'notes' %}"
+               class="nav-link {% block nav_notes %}{% endblock %} flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 text-sm font-medium">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <line x1="10" y1="9" x2="8" y2="9"/>
+                </svg>
+                Notes
+            </a>
+
+            <a href="{% url 'habits' %}"
+               class="nav-link {% block nav_habits %}{% endblock %} flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 text-sm font-medium">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Habits
+            </a>
         </nav>
 
         <!-- Logout -->
@@ -135,20 +157,18 @@
         <!-- Top navbar -->
         <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 sticky top-0 z-30">
             <div class="flex items-center gap-4">
-                <!-- Mobile hamburger -->
                 <button onclick="toggleSidebar()" class="md:hidden text-slate-500 hover:text-slate-800 transition">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
                     </svg>
                 </button>
                 <div>
-                    <h1 class="text-slate-800 font-bold text-lg leading-tight" style="font-family:'Syne',sans-serif;">{% block page_title %}Dashboard{% endblock %}</h1>
+                    <h1 class="text-slate-800 font-bold text-lg leading-tight brand-font">{% block page_title %}Dashboard{% endblock %}</h1>
                     <p class="text-slate-400 text-xs">{% block page_subtitle %}Welcome back{% endblock %}</p>
                 </div>
             </div>
 
             {% if request.user.is_authenticated %}
-            <!-- Avatar dropdown trigger -->
             <div class="relative">
                 <button onclick="toggleAvatarDropdown(event)"
                     class="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3 py-2 transition cursor-pointer">
@@ -165,11 +185,8 @@
                     </svg>
                 </button>
 
-                <!-- Dropdown menu -->
                 <div id="avatar-dropdown"
                     class="absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50">
-
-                    <!-- User info header -->
                     <div class="px-4 py-3 border-b border-slate-100">
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 text-sm font-bold overflow-hidden shrink-0">
@@ -189,8 +206,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Menu items -->
                     <div class="py-1.5">
                         <a href="{% url 'edit_profile' %}"
                             class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
@@ -209,7 +224,6 @@
                             Change Password
                         </a>
                     </div>
-
                     <div class="border-t border-slate-100 pt-1.5">
                         <form method="POST" action="{% url 'logout' %}">
                             {% csrf_token %}
@@ -235,7 +249,7 @@
 
         <!-- Footer -->
         <footer class="border-t border-slate-200 bg-white px-6 py-4 shrink-0">
-            <p class="text-center text-slate-400 text-xs">© {% now "Y" %} Tasklify · Aemard Roque. All rights reserved.</p>
+            <p class="text-center text-slate-400 text-xs">© {% now "Y" %} LetTask · Aemard Roque. All rights reserved.</p>
         </footer>
 
     </div>
@@ -268,7 +282,17 @@
 <!-- Chat window -->
 <div id="chat-window" class="fixed bottom-20 right-6 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 hidden flex-col" style="height:420px;">
     <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-        <span class="font-semibold text-slate-800 text-sm">Tasklify Assistant</span>
+        <div class="flex items-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
+                <rect width="32" height="32" rx="8" fill="#3b82f6"/>
+                <rect x="8" y="8" width="3" height="14" rx="1.5" fill="white"/>
+                <rect x="8" y="19" width="8" height="3" rx="1.5" fill="white"/>
+                <rect x="8" y="8" width="16" height="3" rx="1.5" fill="white"/>
+                <rect x="19" y="8" width="3" height="10" rx="1.5" fill="white"/>
+                <circle cx="24" cy="22" r="2.5" fill="white" opacity="0.85"/>
+            </svg>
+            <span class="font-semibold text-slate-800 text-sm">LetTask Assistant</span>
+        </div>
         <button onclick="toggleChat()" class="text-slate-400 hover:text-slate-600 text-lg">×</button>
     </div>
     <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3" style="flex:1;overflow-y:auto;"></div>
@@ -287,27 +311,22 @@ function toggleChat() {
     w.classList.toggle('hidden');
     w.classList.toggle('flex');
 }
-
 async function sendMessage() {
-    const input = document.getElementById('chat-input');
+    const input    = document.getElementById('chat-input');
     const messages = document.getElementById('chat-messages');
-    const text = input.value.trim();
+    const text     = input.value.trim();
     if (!text) return;
-
     messages.innerHTML += `<div class="text-right"><span class="bg-blue-500 text-white text-xs px-3 py-2 rounded-xl inline-block">${text}</span></div>`;
     input.value = '';
     messages.scrollTop = messages.scrollHeight;
-
-    messages.innerHTML += `<div id="typing" class="text-left"><span class="bg-slate-100 text-slate-500 text-xs px-3 py-2 rounded-xl inline-block">Typing...</span></div>`;
+    messages.innerHTML += `<div id="typing"><span class="bg-slate-100 text-slate-500 text-xs px-3 py-2 rounded-xl inline-block">Typing...</span></div>`;
     messages.scrollTop = messages.scrollHeight;
-
-    const res = await fetch('/registration/chatbot/', {
+    const res  = await fetch('/registration/chatbot/', {
         method: 'POST',
         headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
         body: JSON.stringify({message: text})
     });
     const data = await res.json();
-
     document.getElementById('typing').remove();
     messages.innerHTML += `<div class="text-left"><span class="bg-slate-100 text-slate-700 text-xs px-3 py-2 rounded-xl inline-block max-w-xs">${data.reply}</span></div>`;
     messages.scrollTop = messages.scrollHeight;

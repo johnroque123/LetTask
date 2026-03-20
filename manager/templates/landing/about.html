@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About – LetTask</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #080b12; color: #e8eaf0; overflow-x: hidden; }
+  .brand { font-family: 'Syne', sans-serif; font-weight: 800; }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 18px 40px; display: flex; align-items: center; justify-content: space-between;
+    background: rgba(8,11,18,0.8); backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-box { width: 30px; height: 30px; background: #3b82f6; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  a.nav-link { font-size: 13px; font-weight: 500; color: #6b7280; text-decoration: none; transition: color 0.15s; }
+  a.nav-link:hover { color: #e8eaf0; }
+  .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 9px 20px; border-radius: 10px; text-decoration: none; transition: all 0.15s; }
+  .btn-primary { background: #3b82f6; color: #fff; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-outline { background: transparent; color: #e8eaf0; border: 1px solid rgba(255,255,255,0.1); }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+  .card { background: #0d1220; border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px; transition: border-color 0.2s; }
+  .card:hover { border-color: rgba(59,130,246,0.2); }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+  .fu { animation: fadeUp 0.55s ease both; }
+  .d1 { animation-delay: 0.1s; }
+  .d2 { animation-delay: 0.2s; }
+  footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 32px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a href="/" class="nav-logo">
+    <div class="logo-box">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <path d="M2 4h12M2 8h8M2 12h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="13" cy="8" r="2.5" fill="white"/>
+      </svg>
+    </div>
+    <span class="brand" style="color:#fff;font-size:18px;">Let<span style="color:#93c5fd;">Task</span></span>
+  </a>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/about/" class="nav-link" style="color:#e8eaf0;">About</a>
+    <a href="/#features" class="nav-link">Features</a>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <a href="/registration/login/" class="btn btn-outline">Log in</a>
+    <a href="/registration/" class="btn btn-primary">Get started</a>
+  </div>
+</nav>
+
+
+<!-- Hero -->
+<section style="padding:140px 40px 80px;position:relative;overflow:hidden;">
+  <div style="position:absolute;top:-80px;right:-80px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.09),transparent 70%);pointer-events:none;"></div>
+  <div style="max-width:680px;position:relative;z-index:1;">
+    <p class="fu" style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">About</p>
+    <h1 class="brand fu d1" style="font-size:clamp(36px,6vw,60px);line-height:1.1;letter-spacing:-0.03em;color:#fff;margin-bottom:20px;">
+      Built by one person.<br>
+      <span style="background:linear-gradient(135deg,#3b82f6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">For everyone.</span>
+    </h1>
+    <p class="fu d2" style="font-size:16px;color:#9ca3af;line-height:1.8;max-width:520px;font-weight:300;">
+      LetTask is a personal productivity app designed and built by <strong style="color:#e5e7eb;font-weight:500;">Aemard Roque</strong> — a student who got tired of juggling five different apps just to stay organised.
+    </p>
+  </div>
+</section>
+
+
+<!-- Story -->
+<section style="padding:0 40px 80px;">
+  <div style="max-width:680px;">
+    <div style="background:#0d1220;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:32px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.07),transparent);pointer-events:none;"></div>
+      <p style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;">The story</p>
+      <p style="font-size:14px;color:#9ca3af;line-height:1.85;margin-bottom:14px;">It started with a problem every student knows — tasks in one app, schedules in another, notes scattered across sticky pads. No single free tool did it all.</p>
+      <p style="font-size:14px;color:#9ca3af;line-height:1.85;margin-bottom:14px;">LetTask started as a Django first practice project with one constraint: it had to be genuinely useful, not just a CRUD demo. Real auth with OTP, brute-force protection, AI assistant, habit tracker, sticky notes, draggable dashboard — all in one place.</p>
+      <p style="font-size:14px;color:#9ca3af;line-height:1.85;">What started as a practice project turned into something worth shipping.</p>
+      <div style="margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.06);">
+        <p style="font-size:15px;font-style:italic;color:#e5e7eb;line-height:1.7;font-weight:300;">"I didn't want to build another to-do list. I wanted the app I wish existed when I want to build something."</p>
+        <p style="font-size:12px;color:#4b5563;margin-top:8px;">— Aemard Roque</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- What's inside -->
+<section style="padding:0 40px 80px;background:#0d1220;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);padding-top:64px;">
+  <div style="max-width:720px;margin:0 auto;">
+    <p style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">What's inside</p>
+    <h2 class="brand" style="font-size:clamp(24px,3vw,36px);color:#fff;letter-spacing:-0.02em;margin-bottom:36px;">Six modules, one login</h2>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+      <div class="card"><p style="font-size:20px;margin-bottom:8px;">🔐</p><h3 style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">Auth System</h3><p style="font-size:12px;color:#6b7280;line-height:1.6;">OTP email verification, brute-force lockout, forgot/reset password, avatar upload.</p></div>
+      <div class="card"><p style="font-size:20px;margin-bottom:8px;">✅</p><h3 style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">Tasks & Calendar</h3><p style="font-size:12px;color:#6b7280;line-height:1.6;">Full CRUD with priority and category. Monthly calendar with day modal.</p></div>
+      <div class="card"><p style="font-size:20px;margin-bottom:8px;">🗓</p><h3 style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">Schedules</h3><p style="font-size:12px;color:#6b7280;line-height:1.6;">Timed events with start/end times, repeat rules, and timeline view.</p></div>
+      <div class="card"><p style="font-size:20px;margin-bottom:8px;">📝</p><h3 style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">Notes</h3><p style="font-size:12px;color:#6b7280;line-height:1.6;">Colour-coded sticky notes with pin, search, and AJAX mutations.</p></div>
+      <div class="card"><p style="font-size:20px;margin-bottom:8px;">🏆</p><h3 style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">Habits</h3><p style="font-size:12px;color:#6b7280;line-height:1.6;">7-day grid, 12-week heatmap, streak calculation — all AJAX toggled.</p></div>
+      <div class="card"><p style="font-size:20px;margin-bottom:8px;">📊</p><h3 style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">Dashboard</h3><p style="font-size:12px;color:#6b7280;line-height:1.6;">Draggable, hideable widgets with layout persisted in localStorage.</p></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- CTA -->
+<section style="padding:80px 40px;text-align:center;">
+  <div style="max-width:480px;margin:0 auto;">
+    <h2 class="brand" style="font-size:clamp(24px,4vw,36px);color:#fff;letter-spacing:-0.02em;margin-bottom:12px;">Ready to try it?</h2>
+    <p style="font-size:14px;color:#9ca3af;margin-bottom:28px;line-height:1.7;">Free forever. No subscription. Sign up in 30 seconds.</p>
+    <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+      <a href="/registration/" class="btn btn-primary" style="padding:12px 26px;font-size:14px;border-radius:11px;">
+        Create account
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="/" style="display:inline-flex;align-items:center;padding:12px 26px;font-size:14px;font-weight:500;color:#9ca3af;border:1px solid rgba(255,255,255,0.1);border-radius:11px;text-decoration:none;transition:all 0.15s;">← Home</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- Footer -->
+<footer>
+  <span class="brand" style="color:#4b5563;font-size:14px;">Let<span style="color:#93c5fd;">Task</span></span>
+  <div style="display:flex;gap:20px;">
+    <a href="/" class="nav-link" style="font-size:12px;">Home</a>
+    <a href="/registration/" class="nav-link" style="font-size:12px;">Sign up</a>
+    <a href="/registration/login/" class="nav-link" style="font-size:12px;">Log in</a>
+  </div>
+  <p style="font-size:12px;color:#374151;">© {% now "Y" %} LetTask · Aemard Roque</p>
+</footer>
+
+</body>
+</html>

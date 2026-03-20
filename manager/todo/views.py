@@ -12,7 +12,9 @@ from collections import defaultdict
 
 # ─── Dashboard ────────────────────────────────────────────────────────────────
 
-@login_required
+# Add these imports at the top of todo/views.py
+from datetime import date, timedelta
+
 def dashboard(request):
     today = date.today()
 
@@ -31,17 +33,59 @@ def dashboard(request):
     medium_count = all_tasks.filter(priority='medium').count()
     low_count    = all_tasks.filter(priority='low').count()
 
+    # Category counts for chart
+    cat_work     = all_tasks.filter(category='work').count()
+    cat_personal = all_tasks.filter(category='personal').count()
+    cat_school   = all_tasks.filter(category='school').count()
+    cat_health   = all_tasks.filter(category='health').count()
+    cat_finance  = all_tasks.filter(category='finance').count()
+    cat_other    = all_tasks.filter(category='other').count()
+
     upcoming_schedules = Schedule.objects.filter(
-        user=request.user,
-        is_completed=False,
-        date__gte=today,
+        user=request.user, is_completed=False, date__gte=today,
     ).order_by('date', 'start_time')[:5]
 
     upcoming_schedules_count = Schedule.objects.filter(
-        user=request.user,
-        is_completed=False,
-        date__gte=today,
+        user=request.user, is_completed=False, date__gte=today,
     ).count()
+
+    # Habits snapshot
+    habit_streaks = []
+    total_habits  = 0
+    try:
+        from habits.models import Habit
+        habits       = Habit.objects.filter(user=request.user, is_archived=False).prefetch_related('logs')
+        total_habits = habits.count()
+        monday       = today - timedelta(days=today.weekday())
+        week         = [monday + timedelta(days=i) for i in range(7)]
+        COLOR_MAP    = {
+            'blue': '#3b82f6', 'green': '#22c55e', 'purple': '#a855f7',
+            'red':  '#ef4444', 'amber': '#f59e0b', 'pink':   '#ec4899',
+        }
+        for habit in habits[:5]:
+            logged = set(habit.logs.filter(completed=True).values_list('date', flat=True))
+            habit_streaks.append({
+                'name':           habit.name,
+                'icon':           habit.icon,
+                'frequency':      habit.get_frequency_display(),
+                'current_streak': habit.current_streak,
+                'week_cells':     [
+                    COLOR_MAP.get(habit.color, '#3b82f6') if d in logged else '#f1f5f9'
+                    for d in week
+                ],
+            })
+    except Exception:
+        pass
+
+    # Notes snapshot
+    recent_notes = []
+    total_notes  = 0
+    try:
+        from notes.models import Note
+        recent_notes = list(Note.objects.filter(user=request.user).order_by('-is_pinned', '-updated_at')[:4])
+        total_notes  = Note.objects.filter(user=request.user).count()
+    except Exception:
+        pass
 
     return render(request, 'dashboard/dashboard.html', {
         'pending_tasks':            pending_tasks,
@@ -57,8 +101,17 @@ def dashboard(request):
         'high_count':               high_count,
         'medium_count':             medium_count,
         'low_count':                low_count,
+        'cat_work':                 cat_work,
+        'cat_personal':             cat_personal,
+        'cat_school':               cat_school,
+        'cat_health':               cat_health,
+        'cat_finance':              cat_finance,
+        'cat_other':                cat_other,
+        'habit_streaks':            habit_streaks,
+        'recent_notes':             recent_notes,
+        'total_habits':             total_habits,
+        'total_notes':              total_notes,
     })
-
 
 # ─── Task CRUD ────────────────────────────────────────────────────────────────
 

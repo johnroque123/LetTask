@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Edit Habit – Tasklify{% endblock %}
+{% block nav_habits %}active{% endblock %}
+{% block page_title %}Edit Habit{% endblock %}
+{% block page_subtitle %}Update habit details{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-lg">
+                {{ habit.icon|default:"✏️" }}
+            </div>
+            <div>
+                <h2 class="text-sm font-bold text-slate-800">Edit Habit</h2>
+                <p class="text-xs text-slate-400">{{ habit.name }}</p>
+            </div>
+        </div>
+
+        <form method="POST" class="px-6 py-5 space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}<p class="text-xs text-red-500 mt-1">{{ form.name.errors.0 }}</p>{% endif %}
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
+                    Description <span class="text-slate-400 normal-case font-normal">(optional)</span>
+                </label>
+                {{ form.description }}
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Frequency</label>
+                    {{ form.frequency }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Color</label>
+                    {{ form.color }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
+                        Icon <span class="text-slate-400 normal-case font-normal">(emoji)</span>
+                    </label>
+                    {{ form.icon }}
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">Target Days</label>
+                    {{ form.target_days }}
+                </div>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
+                {{ form.non_field_errors|join:", " }}
+            </div>
+            {% endif %}
+
+            <div class="flex gap-3 pt-2">
+                <a href="{% url 'habits' %}"
+                   class="flex-1 text-center py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="flex-1 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold transition">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
