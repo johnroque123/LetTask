@@ -3,8 +3,8 @@
      data-note-id="{{ note.pk }}"
      data-titleraw="{{ note.title|lower }}"
      data-contentraw="{{ note.content|lower }}"
-     data-title="{{ note.title|escapejs }}"
-     data-content="{{ note.content|escapejs }}"
+     data-title="{{ note.title|escape }}"
+     data-content="{{ note.content|escape }}"
      data-color="{{ note.color }}"
      onclick="openEditFromCard(this)">
 

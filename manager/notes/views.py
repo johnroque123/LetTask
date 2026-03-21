@@ -51,15 +51,15 @@ def note_update(request, note_id):
     except json.JSONDecodeError:
         return JsonResponse({'ok': False, 'error': 'Invalid JSON'}, status=400)
 
-    form = NoteForm(data, instance=note)
-    if form.is_valid():
-        updated = form.save()
-        return JsonResponse({
-            'ok':      True,
-            'updated': updated.updated_at.strftime('%b %d, %Y'),
-        })
-    return JsonResponse({'ok': False, 'errors': form.errors}, status=400)
+    note.title   = data.get('title', note.title)
+    note.content = data.get('content', note.content)
+    note.color   = data.get('color', note.color)
+    note.save(update_fields=['title', 'content', 'color', 'updated_at'])
 
+    return JsonResponse({
+        'ok':      True,
+        'updated': note.updated_at.strftime('%b %d, %Y'),
+    })
 
 @login_required
 @require_POST

@@ -169,9 +169,9 @@ let editingNoteId = null;
 // ── Open modal for creating ───────────────────────────────────────
 function openCreateModal() {
     editingNoteId = null;
-    document.getElementById('modal-heading').textContent = 'New Note';
-    document.getElementById('modal-title').value         = '';
-    document.getElementById('modal-content').value       = '';
+    document.getElementById('modal-heading').textContent  = 'New Note';
+    document.getElementById('modal-title').value          = '';
+    document.getElementById('modal-content').value        = '';
     document.getElementById('modal-error').classList.add('hidden');
     document.getElementById('modal-save-btn').textContent = 'Save Note';
     selectColor('yellow');
@@ -193,8 +193,8 @@ function openEditFromCard(el) {
 function openEditModal(id, title, content, color) {
     editingNoteId = id;
     document.getElementById('modal-heading').textContent  = 'Edit Note';
-    document.getElementById('modal-title').value          = title;
-    document.getElementById('modal-content').value        = content;
+    document.getElementById('modal-title').value          = decodeAttr(title);
+    document.getElementById('modal-content').value        = decodeAttr(content);
     document.getElementById('modal-error').classList.add('hidden');
     document.getElementById('modal-save-btn').textContent = 'Save Changes';
     selectColor(color || 'yellow');
@@ -297,7 +297,6 @@ function prependCard(data) {
     let grid = document.getElementById('notes-grid');
 
     if (!grid) {
-        // Others section doesn't exist yet — create it
         const section  = document.createElement('div');
         section.id     = 'others-section';
         section.innerHTML = `
@@ -353,7 +352,6 @@ async function togglePin(id, btn) {
     });
     const data = await res.json();
     if (data.ok) {
-        // Reload so pinned/unpinned sections re-sort correctly
         location.reload();
     }
 }
@@ -396,6 +394,12 @@ function updateCount(delta) {
 function checkEmptyState() {
     const remaining = document.querySelectorAll('.note-card').length;
     if (remaining === 0) location.reload();
+}
+
+function decodeAttr(str) {
+    const txt = document.createElement('textarea');
+    txt.innerHTML = str;
+    return txt.value;
 }
 
 function escHtml(str) {
