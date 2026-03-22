@@ -7,22 +7,34 @@
 {% block content %}
 <div class="max-w-5xl mx-auto space-y-6">
 
-    <!-- Top bar -->
+ <!-- Top bar -->
     <div class="flex items-center justify-between gap-3 flex-wrap">
         <div class="flex items-center gap-3">
             <div class="relative">
                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-                     width="15" height="15" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    width="15" height="15" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round">
                     <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
                 <input type="text" id="search-input" placeholder="Search notes..."
-                       class="pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl
-                              focus:outline-none focus:ring-2 focus:ring-blue-500 w-56">
+                    class="pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl
+                            focus:outline-none focus:ring-2 focus:ring-blue-500 w-56">
             </div>
             <span id="note-count" class="text-xs text-slate-400 font-medium">
                 {{ total }} note{{ total|pluralize }}
             </span>
+
+            <!-- ✅ ADD THIS -->
+            <a href="{% url 'notes_archived' %}"
+            class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-700 transition">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="21 8 21 21 3 21 3 8"/>
+                    <rect x="1" y="3" width="22" height="5"/>
+                    <line x1="10" y1="12" x2="14" y2="12"/>
+                </svg>
+                Archived
+            </a>
         </div>
         <button onclick="openCreateModal()"
                 class="flex items-center gap-2 px-4 py-2.5 text-white text-sm font-semibold rounded-2xl transition shrink-0"
@@ -412,6 +424,20 @@ function escHtml(str) {
 
 function escAttr(str) {
     return (str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// ── Archive ───────────────────────────────────────────────────────
+async function archiveNote(id, btn) {
+    const res  = await fetch(`/notes/${id}/archive/`, {
+        method: 'POST', headers: { 'X-CSRFToken': CSRF },
+    });
+    const data = await res.json();
+    if (data.ok) {
+        const card = document.querySelector(`[data-note-id="${id}"]`);
+        if (card) card.remove();
+        updateCount(-1);
+        checkEmptyState();
+    }
 }
 </script>
 {% endblock %}

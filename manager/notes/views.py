@@ -10,15 +10,22 @@ from .forms import NoteForm
 
 @login_required
 def notes_view(request):
-    notes  = Note.objects.filter(user=request.user)
+    notes  = Note.objects.filter(user=request.user, is_archived=False)
     pinned = notes.filter(is_pinned=True)
     others = notes.filter(is_pinned=False)
-    form   = NoteForm()
     return render(request, 'notes/notes.html', {
         'pinned': pinned,
         'others': others,
-        'form':   form,
         'total':  notes.count(),
+    })
+
+
+@login_required
+def archived_notes_view(request):
+    notes = Note.objects.filter(user=request.user, is_archived=True).order_by('-updated_at')
+    return render(request, 'notes/archived_notes.html', {
+        'archived': notes,
+        'total':    notes.count(),
     })
 
 
@@ -56,10 +63,8 @@ def note_update(request, note_id):
     note.color   = data.get('color', note.color)
     note.save(update_fields=['title', 'content', 'color', 'updated_at'])
 
-    return JsonResponse({
-        'ok':      True,
-        'updated': note.updated_at.strftime('%b %d, %Y'),
-    })
+    return JsonResponse({'ok': True, 'updated': note.updated_at.strftime('%b %d, %Y')})
+
 
 @login_required
 @require_POST
@@ -76,3 +81,14 @@ def note_toggle_pin(request, note_id):
     note.is_pinned = not note.is_pinned
     note.save(update_fields=['is_pinned'])
     return JsonResponse({'ok': True, 'is_pinned': note.is_pinned})
+
+
+@login_required
+@require_POST
+def note_toggle_archive(request, note_id):
+    note            = get_object_or_404(Note, pk=note_id, user=request.user)
+    note.is_archived = not note.is_archived
+    if note.is_archived:
+        note.is_pinned = False   # unpin when archiving
+    note.save(update_fields=['is_archived', 'is_pinned'])
+    return JsonResponse({'ok': True, 'is_archived': note.is_archived})

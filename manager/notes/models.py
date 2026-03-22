@@ -19,6 +19,7 @@ class Note(models.Model):
     is_pinned  = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_archived = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-is_pinned', '-updated_at']
