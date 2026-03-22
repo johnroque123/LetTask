@@ -14,6 +14,12 @@
     .widget.sortable-chosen { box-shadow: 0 12px 40px rgba(0,0,0,0.12); transform: scale(1.01); z-index: 50; }
     .drag-handle { cursor: grab; }
     .drag-handle:active { cursor: grabbing; }
+
+    /* Hide drag handles on touch devices */
+    @media (max-width: 1023px) {
+        .drag-handle { display: none !important; }
+    }
+
     .widget-hidden { display: none !important; }
     .tbtn { font-size: 11px; padding: 4px 12px; border-radius: 8px; border: 1px solid #e2e8f0; color: #64748b; font-weight: 500; transition: all 0.15s; background: white; cursor: pointer; }
     .tbtn.on  { background: #0f172a; color: #fff; border-color: #0f172a; }
@@ -27,13 +33,50 @@
     .widget:nth-child(4) { animation-delay: 0.16s; }
     .widget:nth-child(5) { animation-delay: 0.20s; }
     .widget:nth-child(6) { animation-delay: 0.24s; }
+
+    /* ── Responsive: stat tiles wrap on small screens ── */
+    @media (max-width: 480px) {
+        .stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        .focus-progress-row { flex-direction: column; align-items: flex-start !important; gap: 12px !important; }
+        .focus-pills { flex-direction: row !important; }
+        .charts-grid { grid-template-columns: 1fr !important; }
+        .notes-grid  { grid-template-columns: 1fr !important; }
+        .task-actions { opacity: 1 !important; } /* always show on mobile */
+        .schedule-actions { opacity: 1 !important; }
+        .completed-actions { opacity: 1 !important; }
+    }
+
+    @media (min-width: 481px) and (max-width: 767px) {
+        .charts-grid { grid-template-columns: 1fr 1fr !important; }
+        .charts-grid > *:last-child { grid-column: span 2; }
+        .task-actions { opacity: 1 !important; }
+        .schedule-actions { opacity: 1 !important; }
+        .completed-actions { opacity: 1 !important; }
+    }
+
+    /* Always-visible actions on touch screens */
+    @media (max-width: 1023px) {
+        .task-actions     { opacity: 1 !important; }
+        .schedule-actions { opacity: 1 !important; }
+        .completed-actions { opacity: 1 !important; }
+        /* Smaller action buttons on mobile */
+        .action-btn { height: 28px !important; padding-left: 8px !important; padding-right: 8px !important; font-size: 11px !important; }
+    }
+
+    /* Customize bar responsive */
+    @media (max-width: 639px) {
+        .customize-bar { flex-direction: column; align-items: flex-start !important; gap: 8px !important; }
+        .toggle-panel-buttons { flex-wrap: wrap; }
+    }
 </style>
 
-<div class="max-w-2xl mx-auto space-y-4">
+<div class="max-w-2xl mx-auto space-y-4 px-3 sm:px-4 md:px-0">
 
     <!-- ── Customize bar ── -->
-    <div class="flex items-center justify-between flex-wrap gap-2">
-        <p class="text-xs text-slate-400">Drag to reorder · click to toggle</p>
+    <div class="customize-bar flex items-center justify-between flex-wrap gap-2">
+        <!-- Hide "drag to reorder" hint on mobile since dragging is disabled -->
+        <p class="text-xs text-slate-400 hidden lg:block">Drag to reorder · click to toggle</p>
+        <p class="text-xs text-slate-400 lg:hidden">Tap to toggle widgets</p>
         <div class="flex items-center gap-2">
             <button onclick="resetLayout()"
                     class="text-xs text-slate-400 hover:text-red-400 transition font-medium px-2 py-1 rounded-lg hover:bg-red-50">
@@ -49,9 +92,9 @@
     </div>
 
     <!-- ── Widget toggle panel ── -->
-    <div id="customize-panel" class="hidden bg-white border border-slate-200 rounded-2xl px-5 py-4">
+    <div id="customize-panel" class="hidden bg-white border border-slate-200 rounded-2xl px-4 sm:px-5 py-4">
         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Toggle widgets</p>
-        <div class="flex flex-wrap gap-2" id="toggle-row"></div>
+        <div class="flex flex-wrap gap-2 toggle-panel-buttons" id="toggle-row"></div>
     </div>
 
     <!-- ── Widget grid ── -->
@@ -77,35 +120,35 @@
                     <div style="position:absolute;bottom:-30px;left:-30px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,0.12),transparent 70%);"></div>
                 </div>
 
-                <div class="relative z-10 px-6 py-5">
+                <div class="relative z-10 px-4 sm:px-6 py-5">
 
                     <!-- Date line -->
                     <p class="text-xs font-semibold text-blue-400 uppercase tracking-widest mb-4">
                         {% now "l, F j" %}
                     </p>
 
-                    <!-- 4 stat tiles -->
-                    <div class="grid grid-cols-4 gap-3 mb-5">
+                    <!-- 4 stat tiles — 2×2 on small, 4×1 on larger -->
+                    <div class="stat-grid grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5">
                         <div class="bg-white/5 rounded-xl px-3 py-3 border border-white/8">
-                            <p class="text-2xl font-bold text-white brand-font">{{ total }}</p>
+                            <p class="text-xl sm:text-2xl font-bold text-white brand-font">{{ total }}</p>
                             <p class="text-xs text-slate-400 mt-0.5">Total tasks</p>
                         </div>
                         <div class="bg-white/5 rounded-xl px-3 py-3 border border-white/8">
-                            <p class="text-2xl font-bold text-amber-400 brand-font">{{ pending_tasks.count }}</p>
+                            <p class="text-xl sm:text-2xl font-bold text-amber-400 brand-font">{{ pending_tasks.count }}</p>
                             <p class="text-xs text-slate-400 mt-0.5">Pending</p>
                         </div>
                         <div class="bg-white/5 rounded-xl px-3 py-3 border border-white/8">
-                            <p class="text-2xl font-bold brand-font {% if overdue_count > 0 %}text-red-400{% else %}text-slate-400{% endif %}">{{ overdue_count }}</p>
+                            <p class="text-xl sm:text-2xl font-bold brand-font {% if overdue_count > 0 %}text-red-400{% else %}text-slate-400{% endif %}">{{ overdue_count }}</p>
                             <p class="text-xs text-slate-400 mt-0.5">Overdue</p>
                         </div>
                         <div class="bg-white/5 rounded-xl px-3 py-3 border border-white/8">
-                            <p class="text-2xl font-bold text-violet-400 brand-font">{{ upcoming_schedules_count }}</p>
+                            <p class="text-xl sm:text-2xl font-bold text-violet-400 brand-font">{{ upcoming_schedules_count }}</p>
                             <p class="text-xs text-slate-400 mt-0.5">Schedules</p>
                         </div>
                     </div>
 
-                    <!-- Progress row -->
-                    <div class="flex items-center gap-4">
+                    <!-- Progress row — stacks on very small screens -->
+                    <div class="focus-progress-row flex items-center gap-3 sm:gap-4 flex-wrap">
                         <!-- Ring chart -->
                         <div class="relative shrink-0" style="width:72px;height:72px;">
                             <svg width="72" height="72" viewBox="0 0 72 72" style="transform:rotate(-90deg);">
@@ -121,7 +164,7 @@
                             </div>
                         </div>
 
-                        <div class="flex-1">
+                        <div class="flex-1 min-w-0">
                             <p class="text-xs text-slate-400 mb-1 font-medium">Task completion</p>
                             <div class="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
                                 <div class="h-full rounded-full transition-all duration-700"
@@ -135,14 +178,14 @@
                         </div>
 
                         <!-- Notes + Habits mini-pills -->
-                        <div class="flex flex-col gap-1.5 shrink-0">
+                        <div class="focus-pills flex flex-row sm:flex-col gap-1.5 shrink-0">
                             <div class="flex items-center gap-1.5 bg-white/5 rounded-lg px-2.5 py-1.5 border border-white/8">
                                 <span class="text-xs">📝</span>
-                                <span class="text-xs text-slate-300 font-medium">{{ total_notes }} notes</span>
+                                <span class="text-xs text-slate-300 font-medium whitespace-nowrap">{{ total_notes }} notes</span>
                             </div>
                             <div class="flex items-center gap-1.5 bg-white/5 rounded-lg px-2.5 py-1.5 border border-white/8">
                                 <span class="text-xs">🏆</span>
-                                <span class="text-xs text-slate-300 font-medium">{{ total_habits }} habits</span>
+                                <span class="text-xs text-slate-300 font-medium whitespace-nowrap">{{ total_habits }} habits</span>
                             </div>
                         </div>
                     </div>
@@ -160,9 +203,11 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1" fill="#cbd5e1"/><circle cx="9" cy="12" r="1" fill="#cbd5e1"/><circle cx="9" cy="19" r="1" fill="#cbd5e1"/><circle cx="15" cy="5" r="1" fill="#cbd5e1"/><circle cx="15" cy="12" r="1" fill="#cbd5e1"/><circle cx="15" cy="19" r="1" fill="#cbd5e1"/></svg>
                 <span class="text-xs text-slate-300 font-medium tracking-wide">Charts</span>
             </div>
-            <div class="grid grid-cols-3 gap-3">
 
-                <!-- Doughnut -->
+            <!-- 3-col desktop / 2-col tablet / 1-col mobile -->
+            <div class="charts-grid grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+                <!-- Status Doughnut -->
                 <div class="bg-white rounded-2xl border border-slate-200 p-4">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Status</p>
                     <div class="relative flex items-center justify-center" style="height:110px;">
@@ -172,24 +217,24 @@
                             <p class="text-xs text-slate-400">tasks</p>
                         </div>
                     </div>
-                    <div class="flex justify-center gap-3 mt-2">
-                        <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>Pending</span>
-                        <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>Done</span>
+                    <div class="flex justify-center gap-3 mt-2 flex-wrap">
+                        <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-amber-400 inline-block shrink-0"></span>Pending</span>
+                        <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0"></span>Done</span>
                     </div>
                 </div>
 
-                <!-- Priority bar -->
+                <!-- Priority Bar -->
                 <div class="bg-white rounded-2xl border border-slate-200 p-4">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Priority</p>
                     <div style="height:110px;"><canvas id="priorityChart"></canvas></div>
-                    <div class="flex justify-center gap-2 mt-2">
-                        <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-red-400 inline-block"></span>Hi</span>
-                        <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>Med</span>
-                        <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-green-400 inline-block"></span>Lo</span>
+                    <div class="flex justify-center gap-2 mt-2 flex-wrap">
+                        <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-red-400 inline-block shrink-0"></span>Hi</span>
+                        <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-amber-400 inline-block shrink-0"></span>Med</span>
+                        <span class="flex items-center gap-1 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-green-400 inline-block shrink-0"></span>Lo</span>
                     </div>
                 </div>
 
-                <!-- Category bar -->
+                <!-- Category Doughnut -->
                 <div class="bg-white rounded-2xl border border-slate-200 p-4">
                     <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Category</p>
                     <div style="height:110px;"><canvas id="categoryChart"></canvas></div>
@@ -207,27 +252,28 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1" fill="#cbd5e1"/><circle cx="9" cy="12" r="1" fill="#cbd5e1"/><circle cx="9" cy="19" r="1" fill="#cbd5e1"/><circle cx="15" cy="5" r="1" fill="#cbd5e1"/><circle cx="15" cy="12" r="1" fill="#cbd5e1"/><circle cx="15" cy="19" r="1" fill="#cbd5e1"/></svg>
                 <span class="text-xs text-slate-300 font-medium tracking-wide">Habits</span>
             </div>
-            <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-widest flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
+                        <span class="w-2 h-2 rounded-full bg-green-400 inline-block shrink-0"></span>
                         Habits
                         <span class="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-full font-semibold">{{ habit_streaks|length }}</span>
                     </h2>
-                    <a href="{% url 'habits' %}" class="text-xs text-slate-400 hover:text-blue-500 transition font-medium">View all →</a>
+                    <a href="{% url 'habits' %}" class="text-xs text-slate-400 hover:text-blue-500 transition font-medium whitespace-nowrap">View all →</a>
                 </div>
                 {% if habit_streaks %}
                 <ul class="space-y-2">
                     {% for h in habit_streaks %}
-                    <li class="flex items-center gap-3 border border-slate-100 rounded-xl px-4 py-2.5 hover:bg-slate-50 transition">
+                    <li class="flex items-center gap-2 sm:gap-3 border border-slate-100 rounded-xl px-3 sm:px-4 py-2.5 hover:bg-slate-50 transition">
                         <span class="text-lg leading-none w-7 text-center shrink-0">{{ h.icon|default:"✅" }}</span>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-slate-800 truncate">{{ h.name }}</p>
                             <p class="text-xs text-slate-400 capitalize">{{ h.frequency }}</p>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-xs bg-amber-50 text-amber-600 px-2 py-0.5 rounded-lg font-semibold">🔥 {{ h.current_streak }}d</span>
-                            <div class="flex gap-0.5">
+                        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                            <span class="text-xs bg-amber-50 text-amber-600 px-1.5 sm:px-2 py-0.5 rounded-lg font-semibold whitespace-nowrap">🔥 {{ h.current_streak }}d</span>
+                            <!-- Week cells: hide on very small screens to avoid overflow -->
+                            <div class="hidden xs:flex sm:flex gap-0.5">
                                 {% for cell in h.week_cells %}
                                 <div class="w-3 h-3 rounded-sm" style="background-color:{{ cell }};"></div>
                                 {% endfor %}
@@ -255,17 +301,17 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1" fill="#cbd5e1"/><circle cx="9" cy="12" r="1" fill="#cbd5e1"/><circle cx="9" cy="19" r="1" fill="#cbd5e1"/><circle cx="15" cy="5" r="1" fill="#cbd5e1"/><circle cx="15" cy="12" r="1" fill="#cbd5e1"/><circle cx="15" cy="19" r="1" fill="#cbd5e1"/></svg>
                 <span class="text-xs text-slate-300 font-medium tracking-wide">Notes</span>
             </div>
-            <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-widest flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-yellow-400 inline-block"></span>
+                        <span class="w-2 h-2 rounded-full bg-yellow-400 inline-block shrink-0"></span>
                         Recent Notes
                         <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full font-semibold">{{ recent_notes|length }}</span>
                     </h2>
-                    <a href="{% url 'notes' %}" class="text-xs text-slate-400 hover:text-blue-500 transition font-medium">View all →</a>
+                    <a href="{% url 'notes' %}" class="text-xs text-slate-400 hover:text-blue-500 transition font-medium whitespace-nowrap">View all →</a>
                 </div>
                 {% if recent_notes %}
-                <div class="grid grid-cols-2 gap-2">
+                <div class="notes-grid grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {% for note in recent_notes %}
                     <a href="{% url 'notes' %}"
                        class="block rounded-xl border border-slate-100 px-3 py-2.5 hover:shadow-sm transition"
@@ -297,24 +343,24 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1" fill="#cbd5e1"/><circle cx="9" cy="12" r="1" fill="#cbd5e1"/><circle cx="9" cy="19" r="1" fill="#cbd5e1"/><circle cx="15" cy="5" r="1" fill="#cbd5e1"/><circle cx="15" cy="12" r="1" fill="#cbd5e1"/><circle cx="15" cy="19" r="1" fill="#cbd5e1"/></svg>
                 <span class="text-xs text-slate-300 font-medium tracking-wide">Pending Tasks</span>
             </div>
-            <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-widest flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>
+                        <span class="w-2 h-2 rounded-full bg-amber-400 inline-block shrink-0"></span>
                         Pending
                         <span class="bg-amber-100 text-amber-600 text-xs px-2 py-0.5 rounded-full font-semibold">{{ pending_tasks.count }}</span>
                     </h2>
-                    <a href="{% url 'todo_list' %}" class="text-xs text-slate-400 hover:text-blue-500 transition font-medium">View all →</a>
+                    <a href="{% url 'todo_list' %}" class="text-xs text-slate-400 hover:text-blue-500 transition font-medium whitespace-nowrap">View all →</a>
                 </div>
                 <ul class="space-y-2">
                     {% for task in pending_tasks %}
-                    <li class="group flex items-center gap-3 border border-slate-100 rounded-xl px-4 py-3 hover:border-slate-200 hover:bg-slate-50 transition">
+                    <li class="group flex items-center gap-2 sm:gap-3 border border-slate-100 rounded-xl px-3 sm:px-4 py-3 hover:border-slate-200 hover:bg-slate-50 transition">
                         <div class="w-2 h-2 rounded-full shrink-0
                             {% if task.priority == 'high' %}bg-red-400
                             {% elif task.priority == 'medium' %}bg-amber-400
                             {% else %}bg-green-400{% endif %}"></div>
                         <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 flex-wrap">
+                            <div class="flex items-center gap-1.5 flex-wrap">
                                 <span class="text-sm text-slate-800 font-medium truncate">{{ task.title }}</span>
                                 {% if task.priority == 'high' %}
                                     <span class="text-xs px-1.5 py-0.5 rounded-md bg-red-100 text-red-600 font-semibold">High</span>
@@ -331,15 +377,16 @@
                             <p class="text-xs text-slate-400 mt-0.5">📅 {{ task.due_date }}</p>
                             {% endif %}
                         </div>
-                        <div class="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition">
+                        <!-- Always visible on mobile/tablet, hover-only on desktop -->
+                        <div class="task-actions flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition lg:opacity-0 lg:group-hover:opacity-100">
                             <form method="POST" action="{% url 'toggle_task' task.id %}">
                                 {% csrf_token %}
-                                <button class="h-7 px-2.5 rounded-lg bg-green-50 border border-green-200 text-green-600 text-xs font-semibold hover:bg-green-100 transition">✓</button>
+                                <button class="action-btn h-7 px-2.5 rounded-lg bg-green-50 border border-green-200 text-green-600 text-xs font-semibold hover:bg-green-100 transition">✓</button>
                             </form>
-                            <a href="{% url 'update_task' task.id %}" class="h-7 px-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-600 text-xs hover:bg-blue-100 transition flex items-center">✏️</a>
+                            <a href="{% url 'update_task' task.id %}" class="action-btn h-7 px-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-600 text-xs hover:bg-blue-100 transition flex items-center">✏️</a>
                             <form method="POST" action="{% url 'delete_task' task.id %}">
                                 {% csrf_token %}
-                                <button class="h-7 px-2.5 rounded-lg bg-red-50 border border-red-200 text-red-500 text-xs hover:bg-red-100 transition">✕</button>
+                                <button class="action-btn h-7 px-2.5 rounded-lg bg-red-50 border border-red-200 text-red-500 text-xs hover:bg-red-100 transition">✕</button>
                             </form>
                         </div>
                     </li>
@@ -363,24 +410,24 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1" fill="#cbd5e1"/><circle cx="9" cy="12" r="1" fill="#cbd5e1"/><circle cx="9" cy="19" r="1" fill="#cbd5e1"/><circle cx="15" cy="5" r="1" fill="#cbd5e1"/><circle cx="15" cy="12" r="1" fill="#cbd5e1"/><circle cx="15" cy="19" r="1" fill="#cbd5e1"/></svg>
                 <span class="text-xs text-slate-300 font-medium tracking-wide">Upcoming Schedules</span>
             </div>
-            <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-sm font-semibold text-slate-700 uppercase tracking-widest flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-sm bg-violet-400 inline-block"></span>
+                        <span class="w-2 h-2 rounded-sm bg-violet-400 inline-block shrink-0"></span>
                         Schedules
                         <span class="bg-violet-100 text-violet-600 text-xs px-2 py-0.5 rounded-full font-semibold">{{ upcoming_schedules|length }}</span>
                     </h2>
-                    <a href="{% url 'schedule' %}" class="text-xs text-slate-400 hover:text-blue-500 transition font-medium">View all →</a>
+                    <a href="{% url 'schedule' %}" class="text-xs text-slate-400 hover:text-blue-500 transition font-medium whitespace-nowrap">View all →</a>
                 </div>
                 <ul class="space-y-2">
                     {% for s in upcoming_schedules %}
-                    <li class="group flex items-start gap-3 border border-slate-100 rounded-xl px-4 py-3 hover:border-violet-100 hover:bg-violet-50/30 transition">
+                    <li class="group flex items-start gap-2 sm:gap-3 border border-slate-100 rounded-xl px-3 sm:px-4 py-3 hover:border-violet-100 hover:bg-violet-50/30 transition">
                         <div class="flex flex-col items-center justify-center w-10 h-10 rounded-xl bg-violet-50 border border-violet-100 shrink-0">
                             <span class="text-xs font-bold text-violet-700 leading-none">{{ s.date|date:"d" }}</span>
                             <span class="text-xs text-violet-400 uppercase leading-none mt-0.5">{{ s.date|date:"M" }}</span>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 flex-wrap">
+                            <div class="flex items-center gap-1.5 flex-wrap">
                                 <span class="text-sm text-slate-800 font-medium truncate">{{ s.title }}</span>
                                 {% if s.priority == 'high' %}
                                     <span class="text-xs px-1.5 py-0.5 rounded-md bg-red-100 text-red-600 font-semibold">High</span>
@@ -391,14 +438,15 @@
                                 {% endif %}
                                 <span class="text-xs px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 font-medium capitalize">{{ s.get_category_display }}</span>
                             </div>
-                            <p class="text-xs text-slate-400 mt-0.5">
+                            <p class="text-xs text-slate-400 mt-0.5 truncate">
                                 {% if s.start_time %}🕐 {{ s.start_time|time:"g:i A" }}{% if s.end_time %} – {{ s.end_time|time:"g:i A" }}{% endif %}{% else %}All day{% endif %}
                                 {% if s.repeat != 'none' %} · 🔁 {{ s.get_repeat_display }}{% endif %}
                             </p>
                         </div>
-                        <div class="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition pt-1">
-                            <a href="{% url 'schedule_edit' s.id %}" class="h-7 px-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-500 text-xs hover:bg-blue-100 transition flex items-center">✏️</a>
-                            <a href="{% url 'schedule_delete' s.id %}" class="h-7 px-2.5 rounded-lg bg-red-50 border border-red-200 text-red-500 text-xs hover:bg-red-100 transition flex items-center">🗑</a>
+                        <!-- Always visible on mobile/tablet -->
+                        <div class="schedule-actions flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition pt-1 lg:opacity-0 lg:group-hover:opacity-100">
+                            <a href="{% url 'schedule_edit' s.id %}" class="action-btn h-7 px-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-500 text-xs hover:bg-blue-100 transition flex items-center">✏️</a>
+                            <a href="{% url 'schedule_delete' s.id %}" class="action-btn h-7 px-2.5 rounded-lg bg-red-50 border border-red-200 text-red-500 text-xs hover:bg-red-100 transition flex items-center">🗑</a>
                         </div>
                     </li>
                     {% empty %}
@@ -422,28 +470,29 @@
                 <span class="text-xs text-slate-300 font-medium tracking-wide">Completed Tasks</span>
             </div>
             {% if completed_tasks %}
-            <div class="bg-white rounded-2xl border border-slate-200 p-5">
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
                 <h2 class="text-sm font-semibold text-slate-400 mb-4 uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block shrink-0"></span>
                     Completed
                     <span class="bg-slate-100 text-slate-400 text-xs px-2 py-0.5 rounded-full font-semibold">{{ completed_tasks.count }}</span>
                 </h2>
                 <ul class="space-y-2">
                     {% for task in completed_tasks %}
-                    <li class="group flex items-center gap-3 border border-slate-100 rounded-xl px-4 py-3 opacity-60 hover:opacity-100 transition">
+                    <li class="group flex items-center gap-2 sm:gap-3 border border-slate-100 rounded-xl px-3 sm:px-4 py-3 opacity-60 hover:opacity-100 transition">
                         <div class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></div>
                         <div class="flex-1 min-w-0">
                             <span class="text-sm text-slate-500 line-through truncate block">{{ task.title }}</span>
                             {% if task.due_date %}<p class="text-xs text-slate-400 mt-0.5">{{ task.due_date }}</p>{% endif %}
                         </div>
-                        <div class="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition">
+                        <!-- Always visible on mobile/tablet -->
+                        <div class="completed-actions flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition lg:opacity-0 lg:group-hover:opacity-100">
                             <form method="POST" action="{% url 'toggle_task' task.id %}">
                                 {% csrf_token %}
-                                <button class="h-7 px-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold hover:bg-slate-100 transition">Undo</button>
+                                <button class="action-btn h-7 px-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 text-xs font-semibold hover:bg-slate-100 transition">Undo</button>
                             </form>
                             <form method="POST" action="{% url 'delete_task' task.id %}">
                                 {% csrf_token %}
-                                <button class="h-7 px-2.5 rounded-lg bg-red-50 border border-red-200 text-red-500 text-xs font-semibold hover:bg-red-100 transition">✕</button>
+                                <button class="action-btn h-7 px-2.5 rounded-lg bg-red-50 border border-red-200 text-red-500 text-xs font-semibold hover:bg-red-100 transition">✕</button>
                             </form>
                         </div>
                     </li>
@@ -537,19 +586,19 @@ new Chart(document.getElementById('categoryChart').getContext('2d'), {
 
 // ── Widget system ─────────────────────────────────────────────────
 const ALL_WIDGETS = [
-    { id: 'w-focus',     label: 'Today\'s Focus' },
-    { id: 'w-charts',    label: 'Charts'         },
-    { id: 'w-habits',    label: 'Habits'         },
-    { id: 'w-notes',     label: 'Notes'          },
-    { id: 'w-pending',   label: 'Pending Tasks'  },
-    { id: 'w-schedules', label: 'Schedules'      },
-    { id: 'w-completed', label: 'Completed'      },
+    { id: 'w-focus',     label: "Today's Focus" },
+    { id: 'w-charts',    label: 'Charts'        },
+    { id: 'w-habits',    label: 'Habits'        },
+    { id: 'w-notes',     label: 'Notes'         },
+    { id: 'w-pending',   label: 'Pending Tasks' },
+    { id: 'w-schedules', label: 'Schedules'     },
+    { id: 'w-completed', label: 'Completed'     },
 ];
 
 const ORDER_KEY  = 'tsk_dash_order_v2';
 const HIDDEN_KEY = 'tsk_dash_hidden_v2';
 
-// Build toggle buttons dynamically
+// Build toggle buttons
 const toggleRow = document.getElementById('toggle-row');
 ALL_WIDGETS.forEach(w => {
     const btn = document.createElement('button');
@@ -570,7 +619,7 @@ if (savedOrder) {
     });
 }
 
-// Apply saved hidden
+// Apply saved hidden state
 const savedHidden = JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]');
 savedHidden.forEach(id => {
     const el  = document.getElementById(id);
@@ -579,18 +628,32 @@ savedHidden.forEach(id => {
     if (btn) btn.classList.remove('on');
 });
 
-// SortableJS
-Sortable.create(document.getElementById('dash-grid'), {
-    animation:    200,
-    easing:       'cubic-bezier(.4,0,.2,1)',
-    handle:       '.drag-handle',
-    ghostClass:   'sortable-ghost',
-    chosenClass:  'sortable-chosen',
-    onEnd() {
-        const order = [...document.querySelectorAll('#dash-grid .widget')].map(el => el.id);
-        localStorage.setItem(ORDER_KEY, JSON.stringify(order));
-    },
-});
+// SortableJS — only enable on desktop (≥1024px)
+const isDesktop = () => window.innerWidth >= 1024;
+
+let sortableInstance = null;
+
+function initSortable() {
+    if (isDesktop() && !sortableInstance) {
+        sortableInstance = Sortable.create(document.getElementById('dash-grid'), {
+            animation:   200,
+            easing:      'cubic-bezier(.4,0,.2,1)',
+            handle:      '.drag-handle',
+            ghostClass:  'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd() {
+                const order = [...document.querySelectorAll('#dash-grid .widget')].map(el => el.id);
+                localStorage.setItem(ORDER_KEY, JSON.stringify(order));
+            },
+        });
+    } else if (!isDesktop() && sortableInstance) {
+        sortableInstance.destroy();
+        sortableInstance = null;
+    }
+}
+
+initSortable();
+window.addEventListener('resize', initSortable);
 
 function toggleWidget(id, btn) {
     const el     = document.getElementById(id);

@@ -10,30 +10,110 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Sans', sans-serif; background: #080b12; color: #e8eaf0; overflow-x: hidden; }
   .brand { font-family: 'Syne', sans-serif; font-weight: 800; }
+
+  /* ── Nav ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    padding: 18px 40px; display: flex; align-items: center; justify-content: space-between;
-    background: rgba(8,11,18,0.8); backdrop-filter: blur(16px);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(8,11,18,0.88); backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(255,255,255,0.06);
+    gap: 12px;
   }
-  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-  .logo-box { width: 30px; height: 30px; background: #3b82f6; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
-  a.nav-link { font-size: 13px; font-weight: 500; color: #6b7280; text-decoration: none; transition: color 0.15s; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+  .logo-box { width: 30px; height: 30px; background: #3b82f6; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-links { display: flex; align-items: center; gap: 20px; }
+  a.nav-link { font-size: 13px; font-weight: 500; color: #6b7280; text-decoration: none; transition: color 0.15s; white-space: nowrap; }
   a.nav-link:hover { color: #e8eaf0; }
-  .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 9px 20px; border-radius: 10px; text-decoration: none; transition: all 0.15s; border: none; cursor: pointer; }
+  .nav-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 9px 20px; border-radius: 10px; text-decoration: none; transition: all 0.15s; border: none; cursor: pointer; white-space: nowrap; }
   .btn-primary { background: #3b82f6; color: #fff; }
   .btn-primary:hover { background: #2563eb; }
   .btn-outline { background: transparent; color: #e8eaf0; border: 1px solid rgba(255,255,255,0.1); }
   .btn-outline:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+
+  /* Mobile nav toggle */
+  .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+  .nav-hamburger span { display: block; width: 20px; height: 2px; background: #9ca3af; border-radius: 2px; transition: all 0.2s; margin: 4px 0; }
+
+  /* Mobile nav drawer */
+  .mobile-nav {
+    display: none;
+    position: fixed; top: 57px; left: 0; right: 0; z-index: 99;
+    background: rgba(8,11,18,0.97); backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 16px 20px 20px;
+    flex-direction: column; gap: 4px;
+  }
+  .mobile-nav.open { display: flex; }
+  .mobile-nav a { padding: 10px 12px; font-size: 14px; color: #9ca3af; text-decoration: none; border-radius: 8px; transition: all 0.15s; }
+  .mobile-nav a:hover { background: rgba(255,255,255,0.04); color: #e8eaf0; }
+  .mobile-nav-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 0; }
+  .mobile-nav-actions { display: flex; flex-direction: column; gap: 8px; }
+  .mobile-nav-actions .btn { justify-content: center; padding: 11px 20px; font-size: 14px; border-radius: 10px; }
+
   @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
   .fu  { animation: fadeUp 0.6s ease both; }
   .d1  { animation-delay: 0.1s; }
   .d2  { animation-delay: 0.2s; }
   .d3  { animation-delay: 0.3s; }
   .d4  { animation-delay: 0.45s; }
+
   .card { background: #0d1220; border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px; transition: border-color 0.2s, transform 0.2s; }
   .card:hover { border-color: rgba(59,130,246,0.25); transform: translateY(-2px); }
-  footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 32px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+  footer {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 24px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+
+  /* ── Desktop hidden links ── */
+  @media (max-width: 767px) {
+    nav { padding: 12px 16px; }
+    .nav-links { display: none; }
+    .nav-actions { display: none; }
+    .nav-hamburger { display: block; }
+
+    /* Hero */
+    .hero-section { padding: 100px 20px 60px !important; }
+    .hero-section h1 { font-size: clamp(38px, 11vw, 56px) !important; }
+    .hero-section p { font-size: 15px !important; }
+
+    /* App mockup */
+    .mockup-section { padding: 0 16px 60px !important; }
+    .mockup-grid { grid-template-columns: 1fr !important; }
+    .sidebar { display: none !important; }
+    .mockup-main { border-radius: 0 0 14px 14px !important; }
+
+    /* Features */
+    .features-section { padding: 60px 16px !important; }
+    .features-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+
+    /* CTA */
+    .cta-section { padding: 60px 16px !important; }
+    .cta-inner { padding: 36px 24px !important; }
+    .cta-inner h2 { font-size: clamp(22px, 7vw, 32px) !important; }
+
+    /* Footer */
+    footer { flex-direction: column; align-items: flex-start; gap: 14px; padding: 20px 16px; }
+    .footer-links { gap: 16px !important; }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    nav { padding: 14px 24px; }
+    .nav-links { gap: 14px; }
+    .hero-section { padding: 120px 24px 80px !important; }
+    .mockup-section { padding: 0 24px 80px !important; }
+    .features-section { padding: 60px 24px !important; }
+    .features-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .cta-section { padding: 60px 24px !important; }
+  }
+
+  @media (min-width: 1024px) {
+    nav { padding: 18px 40px; }
+  }
 </style>
 </head>
 <body>
@@ -53,25 +133,46 @@
     </div>
     <span class="brand" style="color:#fff;font-size:18px;">Let<span style="color:#93c5fd;">Task</span></span>
   </a>
-  <div style="display:flex;align-items:center;gap:24px;">
+
+  <!-- Desktop links -->
+  <div class="nav-links">
     <a href="/" class="nav-link">Home</a>
     <a href="/about/" class="nav-link">About</a>
     <a href="#features" class="nav-link">Features</a>
   </div>
-  <div style="display:flex;gap:8px;">
+
+  <!-- Desktop actions -->
+  <div class="nav-actions">
     <a href="/registration/login/" class="btn btn-outline">Log in</a>
     <a href="/registration/" class="btn btn-primary">Get started</a>
   </div>
+
+  <!-- Mobile hamburger -->
+  <button class="nav-hamburger" id="hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- Mobile nav drawer -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="/">Home</a>
+  <a href="/about/">About</a>
+  <a href="#features">Features</a>
+  <div class="mobile-nav-divider"></div>
+  <div class="mobile-nav-actions">
+    <a href="/registration/login/" class="btn btn-outline">Log in</a>
+    <a href="/registration/" class="btn btn-primary">Get started</a>
+  </div>
+</div>
 
 
 <!-- Hero -->
-<section style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 40px 80px;text-align:center;position:relative;overflow:hidden;">
+<section class="hero-section" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 40px 80px;text-align:center;position:relative;overflow:hidden;">
   <div style="position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(59,130,246,0.12) 0%,transparent 70%);pointer-events:none;"></div>
   <div style="position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse 70% 60% at 50% 0%,black,transparent);"></div>
-  <div style="position:relative;z-index:1;max-width:700px;">
+  <div style="position:relative;z-index:1;max-width:700px;width:100%;">
     <div class="fu" style="display:inline-flex;align-items:center;gap:7px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:99px;padding:5px 14px;margin-bottom:28px;">
-      <span style="width:6px;height:6px;background:#3b82f6;border-radius:50%;display:inline-block;"></span>
+      <span style="width:6px;height:6px;background:#3b82f6;border-radius:50%;display:inline-block;flex-shrink:0;"></span>
       <span style="font-size:12px;color:#93c5fd;font-weight:500;">Tasks · Habits · Notes — all in one place</span>
     </div>
     <h1 class="brand fu d1" style="font-size:clamp(44px,7vw,76px);line-height:1.06;letter-spacing:-0.03em;color:#fff;margin-bottom:20px;">
@@ -94,7 +195,7 @@
 
 
 <!-- App mockup -->
-<section style="padding:0 40px 100px;">
+<section class="mockup-section" style="padding:0 40px 100px;">
   <div style="max-width:900px;margin:0 auto;position:relative;">
     <div style="position:absolute;inset:-20px;background:radial-gradient(ellipse 60% 40% at 50% 50%,rgba(59,130,246,0.08),transparent);border-radius:32px;pointer-events:none;"></div>
 
@@ -103,36 +204,30 @@
 
       <!-- Title bar -->
       <div style="background:#0a0e17;padding:10px 16px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.05);">
-        <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;"></div>
-        <div style="width:10px;height:10px;border-radius:50%;background:#f59e0b;"></div>
-        <div style="width:10px;height:10px;border-radius:50%;background:#22c55e;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div>
         <div style="flex:1;display:flex;justify-content:center;">
-          <div style="background:rgba(255,255,255,0.05);border-radius:5px;padding:3px 20px;font-size:10px;color:#4b5563;">lettask.app/dashboard</div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:5px;padding:3px 20px;font-size:10px;color:#4b5563;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;">lettask.app/dashboard</div>
         </div>
       </div>
 
       <!-- App shell -->
-      <div style="display:grid;grid-template-columns:190px 1fr;min-height:420px;">
+      <div class="mockup-grid" style="display:grid;grid-template-columns:190px 1fr;min-height:420px;">
 
         <!-- Sidebar -->
-        <div style="background:#0f1623;border-right:1px solid rgba(255,255,255,0.05);padding:16px 12px;display:flex;flex-direction:column;gap:4px;">
-          <!-- Logo -->
+        <div class="sidebar" style="background:#0f1623;border-right:1px solid rgba(255,255,255,0.05);padding:16px 12px;display:flex;flex-direction:column;gap:4px;">
           <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin-bottom:10px;">
             <div style="width:22px;height:22px;background:#3b82f6;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="8" r="2.5" fill="white"/></svg>
             </div>
             <span class="brand" style="font-size:13px;color:#fff;">Let<span style="color:#93c5fd;">Task</span></span>
           </div>
-
-          <!-- User -->
           <div style="display:flex;align-items:center;gap:8px;padding:7px 8px;margin-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:12px;">
             <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;">ae</div>
             <div><p style="font-size:10px;color:#e2e8f0;font-weight:600;line-height:1;">ae</p><p style="font-size:9px;color:#4b5563;margin-top:1px;">Personal workspace</p></div>
           </div>
-
           <p style="font-size:8px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.1em;padding:0 8px;margin-bottom:2px;">Menu</p>
-
-          <!-- Nav items -->
           <div style="padding:7px 9px;border-radius:8px;background:rgba(59,130,246,0.15);display:flex;align-items:center;gap:8px;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
             <span style="font-size:10px;color:#93c5fd;font-weight:600;">Dashboard</span>
@@ -160,25 +255,20 @@
         </div>
 
         <!-- Main content -->
-        <div style="background:#f1f5f9;display:flex;flex-direction:column;">
-
-          <!-- Top bar -->
+        <div class="mockup-main" style="background:#f1f5f9;display:flex;flex-direction:column;">
           <div style="background:#fff;padding:12px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
             <div>
               <p style="font-size:13px;font-weight:700;color:#0f172a;font-family:'Syne',sans-serif;">Dashboard</p>
               <p style="font-size:9px;color:#94a3b8;margin-top:1px;">Hi ae, here's your overview 👋</p>
             </div>
-            <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;">ae</div>
+            <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;">ae</div>
           </div>
 
-          <!-- Dashboard body -->
           <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px;overflow:hidden;">
-
             <!-- Today's Focus card -->
             <div style="background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 60%,#172554 100%);border-radius:10px;padding:14px 16px;">
               <p style="font-size:8px;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">📌 Today's Focus</p>
               <p style="font-size:9px;font-weight:700;color:#94a3b8;letter-spacing:0.08em;margin-bottom:10px;">FRIDAY, MARCH 20</p>
-              <!-- Stat cards -->
               <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px;">
                 <div style="background:rgba(255,255,255,0.07);border-radius:7px;padding:8px 10px;border:1px solid rgba(255,255,255,0.06);">
                   <p style="font-size:16px;font-weight:800;color:#fff;font-family:'Syne',sans-serif;line-height:1;">1</p>
@@ -197,9 +287,7 @@
                   <p style="font-size:8px;color:#64748b;margin-top:3px;">Schedules</p>
                 </div>
               </div>
-              <!-- Progress row -->
               <div style="display:flex;align-items:center;gap:10px;">
-                <!-- Donut -->
                 <div style="position:relative;width:36px;height:36px;flex-shrink:0;">
                   <svg width="36" height="36" viewBox="0 0 36 36">
                     <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="4"/>
@@ -207,12 +295,12 @@
                   </svg>
                   <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:800;color:#fff;font-family:'Syne',sans-serif;">100%</div>
                 </div>
-                <div style="flex:1;">
-                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px;">
                     <span style="font-size:8px;color:#94a3b8;">Task completion</span>
                     <div style="display:flex;gap:5px;">
-                      <span style="font-size:7px;background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;color:#e2e8f0;">📋 1 notes</span>
-                      <span style="font-size:7px;background:rgba(251,191,36,0.15);padding:2px 6px;border-radius:4px;color:#fbbf24;">🏆 1 habits</span>
+                      <span style="font-size:7px;background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px;color:#e2e8f0;white-space:nowrap;">📋 1 notes</span>
+                      <span style="font-size:7px;background:rgba(251,191,36,0.15);padding:2px 6px;border-radius:4px;color:#fbbf24;white-space:nowrap;">🏆 1 habits</span>
                     </div>
                   </div>
                   <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:3px;overflow:hidden;">
@@ -225,64 +313,38 @@
 
             <!-- Charts row -->
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-              <!-- Status donut -->
               <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #e2e8f0;">
                 <p style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Status</p>
                 <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
                   <div style="position:relative;width:52px;height:52px;">
-                    <svg width="52" height="52" viewBox="0 0 52 52">
-                      <circle cx="26" cy="26" r="19" fill="none" stroke="#e2e8f0" stroke-width="6"/>
-                      <circle cx="26" cy="26" r="19" fill="none" stroke="#22c55e" stroke-width="6" stroke-dasharray="119" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 26 26)"/>
-                    </svg>
-                    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-                      <span style="font-size:11px;font-weight:800;color:#0f172a;font-family:'Syne',sans-serif;line-height:1;">1</span>
-                      <span style="font-size:7px;color:#94a3b8;">tasks</span>
-                    </div>
+                    <svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="19" fill="none" stroke="#e2e8f0" stroke-width="6"/><circle cx="26" cy="26" r="19" fill="none" stroke="#22c55e" stroke-width="6" stroke-dasharray="119" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 26 26)"/></svg>
+                    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><span style="font-size:11px;font-weight:800;color:#0f172a;font-family:'Syne',sans-serif;line-height:1;">1</span><span style="font-size:7px;color:#94a3b8;">tasks</span></div>
                   </div>
-                  <div style="display:flex;gap:8px;">
-                    <span style="font-size:7px;color:#64748b;display:flex;align-items:center;gap:3px;"><span style="width:5px;height:5px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>Pending</span>
-                    <span style="font-size:7px;color:#64748b;display:flex;align-items:center;gap:3px;"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;display:inline-block;"></span>Done</span>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+                    <span style="font-size:7px;color:#64748b;display:flex;align-items:center;gap:3px;"><span style="width:5px;height:5px;border-radius:50%;background:#f59e0b;display:inline-block;flex-shrink:0;"></span>Pending</span>
+                    <span style="font-size:7px;color:#64748b;display:flex;align-items:center;gap:3px;"><span style="width:5px;height:5px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0;"></span>Done</span>
                   </div>
                 </div>
               </div>
-              <!-- Priority bar -->
               <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #e2e8f0;">
                 <p style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Priority</p>
                 <div style="display:flex;align-items:flex-end;justify-content:center;gap:8px;height:48px;">
-                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
-                    <div style="width:14px;background:#f59e0b;border-radius:3px 3px 0 0;height:36px;"></div>
-                    <span style="font-size:7px;color:#94a3b8;">High</span>
-                  </div>
-                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
-                    <div style="width:14px;background:#e2e8f0;border-radius:3px 3px 0 0;height:6px;"></div>
-                    <span style="font-size:7px;color:#94a3b8;">Med</span>
-                  </div>
-                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
-                    <div style="width:14px;background:#e2e8f0;border-radius:3px 3px 0 0;height:6px;"></div>
-                    <span style="font-size:7px;color:#94a3b8;">Low</span>
-                  </div>
-                </div>
-                <div style="display:flex;justify-content:center;gap:6px;margin-top:4px;">
-                  <span style="font-size:7px;color:#64748b;display:flex;align-items:center;gap:2px;"><span style="width:4px;height:4px;border-radius:50%;background:#ef4444;display:inline-block;"></span>Hi</span>
-                  <span style="font-size:7px;color:#64748b;display:flex;align-items:center;gap:2px;"><span style="width:4px;height:4px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>Med</span>
-                  <span style="font-size:7px;color:#64748b;display:flex;align-items:center;gap:2px;"><span style="width:4px;height:4px;border-radius:50%;background:#22c55e;display:inline-block;"></span>Lo</span>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="width:14px;background:#f59e0b;border-radius:3px 3px 0 0;height:36px;"></div><span style="font-size:7px;color:#94a3b8;">High</span></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="width:14px;background:#e2e8f0;border-radius:3px 3px 0 0;height:6px;"></div><span style="font-size:7px;color:#94a3b8;">Med</span></div>
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="width:14px;background:#e2e8f0;border-radius:3px 3px 0 0;height:6px;"></div><span style="font-size:7px;color:#94a3b8;">Low</span></div>
                 </div>
               </div>
-              <!-- Category donut -->
               <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #e2e8f0;">
                 <p style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Category</p>
                 <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
                   <div style="position:relative;width:52px;height:52px;">
-                    <svg width="52" height="52" viewBox="0 0 52 52">
-                      <circle cx="26" cy="26" r="19" fill="none" stroke="#e2e8f0" stroke-width="6"/>
-                      <circle cx="26" cy="26" r="19" fill="none" stroke="#a78bfa" stroke-width="6" stroke-dasharray="119" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 26 26)"/>
-                    </svg>
+                    <svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="19" fill="none" stroke="#e2e8f0" stroke-width="6"/><circle cx="26" cy="26" r="19" fill="none" stroke="#a78bfa" stroke-width="6" stroke-dasharray="119" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 26 26)"/></svg>
                   </div>
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;">
-                    <span style="font-size:6.5px;color:#64748b;display:flex;align-items:center;gap:2px;"><span style="width:4px;height:4px;border-radius:50%;background:#3b82f6;display:inline-block;"></span>Work</span>
-                    <span style="font-size:6.5px;color:#64748b;display:flex;align-items:center;gap:2px;"><span style="width:4px;height:4px;border-radius:50%;background:#a78bfa;display:inline-block;"></span>Personal</span>
-                    <span style="font-size:6.5px;color:#64748b;display:flex;align-items:center;gap:2px;"><span style="width:4px;height:4px;border-radius:50%;background:#06b6d4;display:inline-block;"></span>School</span>
-                    <span style="font-size:6.5px;color:#64748b;display:flex;align-items:center;gap:2px;"><span style="width:4px;height:4px;border-radius:50%;background:#22c55e;display:inline-block;"></span>Health</span>
+                    <span style="font-size:6.5px;color:#64748b;display:flex;align-items:center;gap:2px;"><span style="width:4px;height:4px;border-radius:50%;background:#3b82f6;display:inline-block;flex-shrink:0;"></span>Work</span>
+                    <span style="font-size:6.5px;color:#64748b;display:flex;align-items:center;gap:2px;"><span style="width:4px;height:4px;border-radius:50%;background:#a78bfa;display:inline-block;flex-shrink:0;"></span>Personal</span>
+                    <span style="font-size:6.5px;color:#64748b;display:flex;align-items:center;gap:2px;"><span style="width:4px;height:4px;border-radius:50%;background:#06b6d4;display:inline-block;flex-shrink:0;"></span>School</span>
+                    <span style="font-size:6.5px;color:#64748b;display:flex;align-items:center;gap:2px;"><span style="width:4px;height:4px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0;"></span>Health</span>
                   </div>
                 </div>
               </div>
@@ -292,21 +354,21 @@
             <div style="background:#fff;border-radius:8px;padding:10px 14px;border:1px solid #e2e8f0;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
                 <p style="font-size:8px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:5px;">
-                  <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+                  <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0;"></span>
                   HABITS &nbsp;<span style="background:#e2e8f0;color:#475569;font-size:7px;padding:1px 5px;border-radius:99px;">1</span>
                 </p>
-                <span style="font-size:8px;color:#3b82f6;">View all →</span>
+                <span style="font-size:8px;color:#3b82f6;white-space:nowrap;">View all →</span>
               </div>
               <div style="display:flex;align-items:center;gap:10px;padding:7px 10px;background:#f8fafc;border-radius:7px;border:1px solid #e2e8f0;">
                 <div style="width:14px;height:14px;border-radius:3px;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                   <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
-                <div style="flex:1;">
+                <div style="flex:1;min-width:0;">
                   <p style="font-size:9px;font-weight:600;color:#0f172a;">Bike</p>
                   <p style="font-size:7px;color:#94a3b8;">Daily</p>
                 </div>
-                <span style="font-size:8px;color:#f97316;">🔥 0d</span>
-                <div style="display:flex;gap:2px;">
+                <span style="font-size:8px;color:#f97316;flex-shrink:0;">🔥 0d</span>
+                <div style="display:flex;gap:2px;flex-shrink:0;">
                   <div style="width:8px;height:8px;border-radius:2px;background:#e2e8f0;"></div>
                   <div style="width:8px;height:8px;border-radius:2px;background:#e2e8f0;"></div>
                   <div style="width:8px;height:8px;border-radius:2px;background:#e2e8f0;"></div>
@@ -327,11 +389,11 @@
 
 
 <!-- Features -->
-<section id="features" style="padding:80px 40px;background:#0d1220;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);">
+<section id="features" class="features-section" style="padding:80px 40px;background:#0d1220;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);">
   <div style="max-width:880px;margin:0 auto;">
     <p style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;text-align:center;">Features</p>
     <h2 class="brand" style="font-size:clamp(28px,4vw,40px);color:#fff;letter-spacing:-0.02em;text-align:center;margin-bottom:48px;">Everything in one place</h2>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+    <div class="features-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
       <div class="card"><div style="font-size:22px;margin-bottom:10px;">✅</div><h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px;">Tasks</h3><p style="font-size:13px;color:#6b7280;line-height:1.65;">Priority, category, due dates. Filter and sort however you need.</p></div>
       <div class="card"><div style="font-size:22px;margin-bottom:10px;">🗓</div><h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px;">Calendar & Schedule</h3><p style="font-size:13px;color:#6b7280;line-height:1.65;">Monthly calendar view plus timed schedule entries with repeat rules.</p></div>
       <div class="card"><div style="font-size:22px;margin-bottom:10px;">🏆</div><h3 style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px;">Habit Tracker</h3><p style="font-size:13px;color:#6b7280;line-height:1.65;">7-day grid, 12-week heatmap, and streak tracking to keep you consistent.</p></div>
@@ -344,15 +406,17 @@
 
 
 <!-- CTA -->
-<section style="padding:80px 40px;">
-  <div style="max-width:600px;margin:0 auto;text-align:center;background:linear-gradient(135deg,#0f172a,#1e3a5f);border:1px solid rgba(59,130,246,0.2);border-radius:20px;padding:56px 40px;position:relative;overflow:hidden;">
-    <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.15),transparent);pointer-events:none;"></div>
-    <h2 class="brand" style="font-size:clamp(24px,4vw,38px);color:#fff;letter-spacing:-0.02em;margin-bottom:12px;position:relative;">Start building better habits today.</h2>
-    <p style="font-size:14px;color:#9ca3af;margin-bottom:28px;line-height:1.7;position:relative;">Free forever. No subscription. Takes 30 seconds to sign up.</p>
-    <a href="/registration/" class="btn btn-primary" style="padding:13px 28px;font-size:14px;border-radius:11px;position:relative;">
-      Create your account
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-    </a>
+<section class="cta-section" style="padding:80px 40px;">
+  <div style="max-width:600px;margin:0 auto;">
+    <div class="cta-inner" style="text-align:center;background:linear-gradient(135deg,#0f172a,#1e3a5f);border:1px solid rgba(59,130,246,0.2);border-radius:20px;padding:56px 40px;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.15),transparent);pointer-events:none;"></div>
+      <h2 class="brand" style="font-size:clamp(24px,4vw,38px);color:#fff;letter-spacing:-0.02em;margin-bottom:12px;position:relative;">Start building better habits today.</h2>
+      <p style="font-size:14px;color:#9ca3af;margin-bottom:28px;line-height:1.7;position:relative;">Free forever. No subscription. Takes 30 seconds to sign up.</p>
+      <a href="/registration/" class="btn btn-primary" style="padding:13px 28px;font-size:14px;border-radius:11px;position:relative;">
+        Create your account
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -360,7 +424,7 @@
 <!-- Footer -->
 <footer>
   <span class="brand" style="color:#4b5563;font-size:14px;">Let<span style="color:#93c5fd;">Task</span></span>
-  <div style="display:flex;gap:20px;">
+  <div class="footer-links" style="display:flex;gap:20px;">
     <a href="/about/" class="nav-link" style="font-size:12px;">About</a>
     <a href="/registration/" class="nav-link" style="font-size:12px;">Sign up</a>
     <a href="/registration/login/" class="nav-link" style="font-size:12px;">Log in</a>
@@ -368,5 +432,16 @@
   <p style="font-size:12px;color:#374151;">© {% now "Y" %} LetTask · Aemard Roque</p>
 </footer>
 
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const mobileNav = document.getElementById('mobileNav');
+  hamburger.addEventListener('click', () => {
+    mobileNav.classList.toggle('open');
+  });
+  // Close drawer when a link is clicked
+  mobileNav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => mobileNav.classList.remove('open'));
+  });
+</script>
 </body>
 </html>

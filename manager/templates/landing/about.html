@@ -10,28 +10,105 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Sans', sans-serif; background: #080b12; color: #e8eaf0; overflow-x: hidden; }
   .brand { font-family: 'Syne', sans-serif; font-weight: 800; }
+
+  /* ── Nav ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    padding: 18px 40px; display: flex; align-items: center; justify-content: space-between;
-    background: rgba(8,11,18,0.8); backdrop-filter: blur(16px);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(8,11,18,0.88); backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(255,255,255,0.06);
+    gap: 12px;
   }
-  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-  .logo-box { width: 30px; height: 30px; background: #3b82f6; border-radius: 7px; display: flex; align-items: center; justify-content: center; }
-  a.nav-link { font-size: 13px; font-weight: 500; color: #6b7280; text-decoration: none; transition: color 0.15s; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+  .logo-box { width: 30px; height: 30px; background: #3b82f6; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-links { display: flex; align-items: center; gap: 20px; }
+  a.nav-link { font-size: 13px; font-weight: 500; color: #6b7280; text-decoration: none; transition: color 0.15s; white-space: nowrap; }
   a.nav-link:hover { color: #e8eaf0; }
-  .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 9px 20px; border-radius: 10px; text-decoration: none; transition: all 0.15s; }
+  .nav-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; padding: 9px 20px; border-radius: 10px; text-decoration: none; transition: all 0.15s; white-space: nowrap; }
   .btn-primary { background: #3b82f6; color: #fff; }
   .btn-primary:hover { background: #2563eb; }
   .btn-outline { background: transparent; color: #e8eaf0; border: 1px solid rgba(255,255,255,0.1); }
   .btn-outline:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+
+  /* Mobile nav toggle */
+  .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+  .nav-hamburger span { display: block; width: 20px; height: 2px; background: #9ca3af; border-radius: 2px; transition: all 0.2s; margin: 4px 0; }
+
+  /* Mobile nav drawer */
+  .mobile-nav {
+    display: none;
+    position: fixed; top: 57px; left: 0; right: 0; z-index: 99;
+    background: rgba(8,11,18,0.97); backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 16px 20px 20px;
+    flex-direction: column; gap: 4px;
+  }
+  .mobile-nav.open { display: flex; }
+  .mobile-nav a { padding: 10px 12px; font-size: 14px; color: #9ca3af; text-decoration: none; border-radius: 8px; transition: all 0.15s; }
+  .mobile-nav a:hover { background: rgba(255,255,255,0.04); color: #e8eaf0; }
+  .mobile-nav-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 0; }
+  .mobile-nav-actions { display: flex; flex-direction: column; gap: 8px; }
+  .mobile-nav-actions .btn { justify-content: center; padding: 11px 20px; font-size: 14px; border-radius: 10px; }
+
   .card { background: #0d1220; border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 22px; transition: border-color 0.2s; }
   .card:hover { border-color: rgba(59,130,246,0.2); }
+
   @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
   .fu { animation: fadeUp 0.55s ease both; }
   .d1 { animation-delay: 0.1s; }
   .d2 { animation-delay: 0.2s; }
-  footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 32px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+  footer {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 24px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 767px) {
+    nav { padding: 12px 16px; }
+    .nav-links { display: none; }
+    .nav-actions { display: none; }
+    .nav-hamburger { display: block; }
+
+    /* Hero */
+    .hero-section { padding: 100px 20px 50px !important; }
+    .hero-section h1 { font-size: clamp(32px, 10vw, 52px) !important; }
+    .hero-section p { font-size: 14px !important; }
+
+    /* Story */
+    .story-section { padding: 0 16px 60px !important; }
+    .story-card { padding: 24px 20px !important; }
+
+    /* What's inside */
+    .inside-section { padding: 48px 16px 60px !important; }
+    .inside-grid { grid-template-columns: 1fr !important; gap: 8px !important; }
+
+    /* CTA */
+    .cta-section { padding: 60px 16px !important; }
+    .cta-btns { flex-direction: column !important; }
+    .cta-btns a { justify-content: center; }
+
+    footer { flex-direction: column; align-items: flex-start; gap: 14px; padding: 20px 16px; }
+    .footer-links { gap: 16px !important; }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    nav { padding: 14px 24px; }
+    .nav-links { gap: 14px; }
+    .hero-section { padding: 120px 24px 60px !important; }
+    .story-section { padding: 0 24px 60px !important; }
+    .inside-section { padding: 56px 24px 60px !important; }
+    .inside-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .cta-section { padding: 60px 24px !important; }
+  }
+
+  @media (min-width: 1024px) {
+    nav { padding: 18px 40px; }
+  }
 </style>
 </head>
 <body>
@@ -51,20 +128,41 @@
     </div>
     <span class="brand" style="color:#fff;font-size:18px;">Let<span style="color:#93c5fd;">Task</span></span>
   </a>
-  <div style="display:flex;align-items:center;gap:24px;">
+
+  <!-- Desktop links -->
+  <div class="nav-links">
     <a href="/" class="nav-link">Home</a>
     <a href="/about/" class="nav-link" style="color:#e8eaf0;">About</a>
     <a href="/#features" class="nav-link">Features</a>
   </div>
-  <div style="display:flex;gap:8px;">
+
+  <!-- Desktop actions -->
+  <div class="nav-actions">
     <a href="/registration/login/" class="btn btn-outline">Log in</a>
     <a href="/registration/" class="btn btn-primary">Get started</a>
   </div>
+
+  <!-- Mobile hamburger -->
+  <button class="nav-hamburger" id="hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- Mobile nav drawer -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="/">Home</a>
+  <a href="/about/">About</a>
+  <a href="/#features">Features</a>
+  <div class="mobile-nav-divider"></div>
+  <div class="mobile-nav-actions">
+    <a href="/registration/login/" class="btn btn-outline">Log in</a>
+    <a href="/registration/" class="btn btn-primary">Get started</a>
+  </div>
+</div>
 
 
 <!-- Hero -->
-<section style="padding:140px 40px 80px;position:relative;overflow:hidden;">
+<section class="hero-section" style="padding:140px 40px 80px;position:relative;overflow:hidden;">
   <div style="position:absolute;top:-80px;right:-80px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.09),transparent 70%);pointer-events:none;"></div>
   <div style="max-width:680px;position:relative;z-index:1;">
     <p class="fu" style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">About</p>
@@ -80,9 +178,9 @@
 
 
 <!-- Story -->
-<section style="padding:0 40px 80px;">
+<section class="story-section" style="padding:0 40px 80px;">
   <div style="max-width:680px;">
-    <div style="background:#0d1220;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:32px;position:relative;overflow:hidden;">
+    <div class="story-card" style="background:#0d1220;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:32px;position:relative;overflow:hidden;">
       <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,0.07),transparent);pointer-events:none;"></div>
       <p style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px;">The story</p>
       <p style="font-size:14px;color:#9ca3af;line-height:1.85;margin-bottom:14px;">It started with a problem every student knows — tasks in one app, schedules in another, notes scattered across sticky pads. No single free tool did it all.</p>
@@ -98,11 +196,11 @@
 
 
 <!-- What's inside -->
-<section style="padding:0 40px 80px;background:#0d1220;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);padding-top:64px;">
+<section class="inside-section" style="padding:0 40px 80px;background:#0d1220;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);padding-top:64px;">
   <div style="max-width:720px;margin:0 auto;">
     <p style="font-size:11px;font-weight:600;color:#3b82f6;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">What's inside</p>
     <h2 class="brand" style="font-size:clamp(24px,3vw,36px);color:#fff;letter-spacing:-0.02em;margin-bottom:36px;">Six modules, one login</h2>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+    <div class="inside-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
       <div class="card"><p style="font-size:20px;margin-bottom:8px;">🔐</p><h3 style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">Auth System</h3><p style="font-size:12px;color:#6b7280;line-height:1.6;">OTP email verification, brute-force lockout, forgot/reset password, avatar upload.</p></div>
       <div class="card"><p style="font-size:20px;margin-bottom:8px;">✅</p><h3 style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">Tasks & Calendar</h3><p style="font-size:12px;color:#6b7280;line-height:1.6;">Full CRUD with priority and category. Monthly calendar with day modal.</p></div>
       <div class="card"><p style="font-size:20px;margin-bottom:8px;">🗓</p><h3 style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">Schedules</h3><p style="font-size:12px;color:#6b7280;line-height:1.6;">Timed events with start/end times, repeat rules, and timeline view.</p></div>
@@ -115,16 +213,16 @@
 
 
 <!-- CTA -->
-<section style="padding:80px 40px;text-align:center;">
+<section class="cta-section" style="padding:80px 40px;text-align:center;">
   <div style="max-width:480px;margin:0 auto;">
     <h2 class="brand" style="font-size:clamp(24px,4vw,36px);color:#fff;letter-spacing:-0.02em;margin-bottom:12px;">Ready to try it?</h2>
     <p style="font-size:14px;color:#9ca3af;margin-bottom:28px;line-height:1.7;">Free forever. No subscription. Sign up in 30 seconds.</p>
-    <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+    <div class="cta-btns" style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
       <a href="/registration/" class="btn btn-primary" style="padding:12px 26px;font-size:14px;border-radius:11px;">
         Create account
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
-      <a href="/" style="display:inline-flex;align-items:center;padding:12px 26px;font-size:14px;font-weight:500;color:#9ca3af;border:1px solid rgba(255,255,255,0.1);border-radius:11px;text-decoration:none;transition:all 0.15s;">← Home</a>
+      <a href="/" style="display:inline-flex;align-items:center;justify-content:center;padding:12px 26px;font-size:14px;font-weight:500;color:#9ca3af;border:1px solid rgba(255,255,255,0.1);border-radius:11px;text-decoration:none;transition:all 0.15s;">← Home</a>
     </div>
   </div>
 </section>
@@ -133,7 +231,7 @@
 <!-- Footer -->
 <footer>
   <span class="brand" style="color:#4b5563;font-size:14px;">Let<span style="color:#93c5fd;">Task</span></span>
-  <div style="display:flex;gap:20px;">
+  <div class="footer-links" style="display:flex;gap:20px;">
     <a href="/" class="nav-link" style="font-size:12px;">Home</a>
     <a href="/registration/" class="nav-link" style="font-size:12px;">Sign up</a>
     <a href="/registration/login/" class="nav-link" style="font-size:12px;">Log in</a>
@@ -141,5 +239,15 @@
   <p style="font-size:12px;color:#374151;">© {% now "Y" %} LetTask · Aemard Roque</p>
 </footer>
 
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const mobileNav = document.getElementById('mobileNav');
+  hamburger.addEventListener('click', () => {
+    mobileNav.classList.toggle('open');
+  });
+  mobileNav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => mobileNav.classList.remove('open'));
+  });
+</script>
 </body>
 </html>
