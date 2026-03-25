@@ -3,11 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 import json
+from django.views.decorators.cache import never_cache
 
 from .models import Note
 from .forms import NoteForm
 
-
+@never_cache
 @login_required
 def notes_view(request):
     notes  = Note.objects.filter(user=request.user, is_archived=False)
@@ -19,7 +20,7 @@ def notes_view(request):
         'total':  notes.count(),
     })
 
-
+@never_cache
 @login_required
 def archived_notes_view(request):
     notes = Note.objects.filter(user=request.user, is_archived=True).order_by('-updated_at')
@@ -28,7 +29,7 @@ def archived_notes_view(request):
         'total':    notes.count(),
     })
 
-
+@never_cache
 @login_required
 @require_POST
 def note_create(request):
@@ -48,7 +49,7 @@ def note_create(request):
         })
     return JsonResponse({'ok': False, 'errors': form.errors}, status=400)
 
-
+@never_cache
 @login_required
 @require_POST
 def note_update(request, note_id):
@@ -65,7 +66,7 @@ def note_update(request, note_id):
 
     return JsonResponse({'ok': True, 'updated': note.updated_at.strftime('%b %d, %Y')})
 
-
+@never_cache
 @login_required
 @require_POST
 def note_delete(request, note_id):
@@ -73,7 +74,7 @@ def note_delete(request, note_id):
     note.delete()
     return JsonResponse({'ok': True})
 
-
+@never_cache
 @login_required
 @require_POST
 def note_toggle_pin(request, note_id):
@@ -82,7 +83,7 @@ def note_toggle_pin(request, note_id):
     note.save(update_fields=['is_pinned'])
     return JsonResponse({'ok': True, 'is_pinned': note.is_pinned})
 
-
+@never_cache
 @login_required
 @require_POST
 def note_toggle_archive(request, note_id):

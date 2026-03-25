@@ -5,8 +5,8 @@ import datetime
 
 from django.shortcuts        import render, redirect
 from django.contrib.auth     import authenticate
+from django.contrib.auth import logout
 from django.contrib.auth     import login as auth_login
-from django.contrib.auth     import logout as auth_logout
 from django.contrib.auth     import get_user_model
 from django.contrib.auth.decorators  import login_required
 from django.views.decorators.http    import require_POST
@@ -16,6 +16,7 @@ from django.contrib          import messages
 from django.http             import JsonResponse
 from django.conf             import settings
 from google                  import genai
+from django.views.decorators.cache import never_cache
 
 from .models       import OTPToken, Profile
 from todo.models   import Task, Schedule
@@ -277,15 +278,18 @@ def login_view(request):
 
 # ─── Logout ────────────────────────────────────────────────────────────────────
 
-@require_POST
 def logout_view(request):
-    auth_logout(request)
-    messages.success(request, "You've been logged out successfully.")
-    return redirect('login')
+    logout(request)
+    response = redirect('login')
+
+    response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    return response
 
 
 # ─── Change Password ───────────────────────────────────────────────────────────
-
+@never_cache
 @login_required
 def change_password_view(request):
     if request.method == 'POST':
@@ -442,7 +446,7 @@ def reset_password_view(request):
 
 
 # ─── Edit Profile ──────────────────────────────────────────────────────────────
-
+@never_cache
 @login_required
 def edit_profile_view(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)

@@ -377,12 +377,21 @@ function toggleChat() {
     w.classList.toggle('hidden');
     w.classList.toggle('flex');
 }
+function escHtml(str) {
+    return (str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 async function sendMessage() {
     const input    = document.getElementById('chat-input');
     const messages = document.getElementById('chat-messages');
     const text     = input.value.trim();
     if (!text) return;
-    messages.innerHTML += `<div class="text-right"><span class="bg-blue-500 text-white text-xs px-3 py-2 rounded-xl inline-block max-w-xs text-left">${text}</span></div>`;
+    messages.innerHTML += `<div class="text-right"><span class="bg-blue-500 text-white text-xs px-3 py-2 rounded-xl inline-block max-w-xs text-left">${escHtml(text)}</span></div>`;
     input.value = '';
     messages.scrollTop = messages.scrollHeight;
     messages.innerHTML += `<div id="typing"><span class="bg-slate-100 text-slate-500 text-xs px-3 py-2 rounded-xl inline-block">Typing...</span></div>`;
@@ -395,7 +404,8 @@ async function sendMessage() {
         });
         const data = await res.json();
         document.getElementById('typing').remove();
-        messages.innerHTML += `<div class="text-left"><span class="bg-slate-100 text-slate-700 text-xs px-3 py-2 rounded-xl inline-block max-w-xs">${data.reply}</span></div>`;
+        // ✅ FIXED: escape reply before injecting into innerHTML
+        messages.innerHTML += `<div class="text-left"><span class="bg-slate-100 text-slate-700 text-xs px-3 py-2 rounded-xl inline-block max-w-xs">${escHtml(data.reply)}</span></div>`;
     } catch(e) {
         document.getElementById('typing').remove();
         messages.innerHTML += `<div class="text-left"><span class="bg-red-50 text-red-400 text-xs px-3 py-2 rounded-xl inline-block">Something went wrong.</span></div>`;

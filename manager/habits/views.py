@@ -4,6 +4,8 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.contrib import messages
 from datetime import date, timedelta
+from django.views.decorators.cache import never_cache
+
 
 from .models import Habit, HabitLog
 from .forms import HabitForm
@@ -22,6 +24,8 @@ def _heatmap_dates():
     return [today - timedelta(days=83 - i) for i in range(84)]
 
 
+
+@never_cache
 @login_required
 def habits_view(request):
     habits     = Habit.objects.filter(user=request.user, is_archived=False).prefetch_related('logs')
@@ -70,6 +74,7 @@ def habits_view(request):
     })
 
 
+@never_cache
 @login_required
 @require_POST
 def habit_create(request):
@@ -86,6 +91,7 @@ def habit_create(request):
     return redirect('habits')
 
 
+@never_cache
 @login_required
 @require_POST
 def habit_toggle(request, habit_id):
@@ -122,6 +128,7 @@ def habit_toggle(request, habit_id):
     })
 
 
+@never_cache
 @login_required
 @require_POST
 def habit_delete(request, habit_id):
@@ -132,6 +139,7 @@ def habit_delete(request, habit_id):
     return redirect('habits')
 
 
+@never_cache
 @login_required
 @require_POST
 def habit_archive(request, habit_id):
@@ -142,6 +150,7 @@ def habit_archive(request, habit_id):
     return redirect('habits')
 
 
+@never_cache
 @login_required
 def habit_edit(request, habit_id):
     habit = get_object_or_404(Habit, pk=habit_id, user=request.user)

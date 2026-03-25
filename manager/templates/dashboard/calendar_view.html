@@ -264,6 +264,16 @@ const SCH_DEL_URL      = "{% url 'schedule_delete' 0 %}".replace('/0/', '/');
 
 function pad(n){ return String(n).padStart(2,'0'); }
 
+// ✅ SECURITY FIX: escape all user-supplied data before injecting into innerHTML
+function escHtml(str) {
+    return (str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 function handleDayClick(el) {
     const day   = parseInt(el.dataset.day);
     const year  = parseInt(el.dataset.year);
@@ -311,10 +321,10 @@ function openDayModal(day, year, month, items) {
             <div class="flex items-center gap-3 border border-slate-100 rounded-xl px-4 py-3 mb-2 ${t.is_completed ? 'opacity-50' : ''}">
                 <div class="w-2 h-2 rounded-full flex-shrink-0 ${PRIORITY_DOT[t.priority] || 'bg-slate-400'}"></div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium ${t.is_completed ? 'line-through text-slate-400' : 'text-slate-800'} truncate">${t.title}</p>
+                    <p class="text-sm font-medium ${t.is_completed ? 'line-through text-slate-400' : 'text-slate-800'} truncate">${escHtml(t.title)}</p>
                     <div class="flex items-center gap-1.5 mt-0.5">
-                        <span class="text-xs px-1.5 py-0.5 rounded-full font-semibold ${PRIORITY_COLORS[t.priority] || 'bg-slate-100 text-slate-500'} capitalize">${t.priority}</span>
-                        <span class="text-xs text-slate-400 capitalize">${t.category}</span>
+                        <span class="text-xs px-1.5 py-0.5 rounded-full font-semibold ${PRIORITY_COLORS[t.priority] || 'bg-slate-100 text-slate-500'} capitalize">${escHtml(t.priority)}</span>
+                        <span class="text-xs text-slate-400 capitalize">${escHtml(t.category)}</span>
                         ${t.is_completed ? '<span class="text-xs text-green-500 font-semibold ml-1">✓ Done</span>' : ''}
                     </div>
                 </div>
@@ -331,11 +341,11 @@ function openDayModal(day, year, month, items) {
             <div class="flex items-center gap-3 border border-violet-100 rounded-xl px-4 py-3 mb-2 bg-violet-50/40 ${s.is_completed ? 'opacity-50' : ''}">
                 <div class="w-2 h-2 rounded-sm flex-shrink-0 bg-violet-400"></div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium ${s.is_completed ? 'line-through text-slate-400' : 'text-slate-800'} truncate">${s.title}</p>
+                    <p class="text-sm font-medium ${s.is_completed ? 'line-through text-slate-400' : 'text-slate-800'} truncate">${escHtml(s.title)}</p>
                     <div class="flex items-center gap-1.5 mt-0.5">
-                        ${s.start_time ? `<span class="text-xs text-slate-400">🕐 ${s.start_time}</span>` : '<span class="text-xs text-slate-300">All day</span>'}
-                        <span class="text-xs px-1.5 py-0.5 rounded-full font-semibold ${PRIORITY_COLORS[s.priority] || 'bg-slate-100 text-slate-500'} capitalize">${s.priority}</span>
-                        <span class="text-xs text-slate-400 capitalize">${s.category}</span>
+                        ${s.start_time ? `<span class="text-xs text-slate-400">🕐 ${escHtml(s.start_time)}</span>` : '<span class="text-xs text-slate-300">All day</span>'}
+                        <span class="text-xs px-1.5 py-0.5 rounded-full font-semibold ${PRIORITY_COLORS[s.priority] || 'bg-slate-100 text-slate-500'} capitalize">${escHtml(s.priority)}</span>
+                        <span class="text-xs text-slate-400 capitalize">${escHtml(s.category)}</span>
                         ${s.is_completed ? '<span class="text-xs text-green-500 font-semibold ml-1">✓ Done</span>' : ''}
                     </div>
                 </div>

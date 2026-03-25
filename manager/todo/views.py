@@ -8,13 +8,15 @@ import calendar
 import json
 from datetime import date
 from collections import defaultdict
+from django.views.decorators.cache import never_cache
 
 
 # ─── Dashboard ────────────────────────────────────────────────────────────────
 
 # Add these imports at the top of todo/views.py
 from datetime import date, timedelta
-
+@never_cache
+@login_required
 def dashboard(request):
     today = date.today()
 
@@ -114,7 +116,7 @@ def dashboard(request):
     })
 
 # ─── Task CRUD ────────────────────────────────────────────────────────────────
-
+@never_cache
 @login_required
 @require_POST
 def toggle_task(request, task_id):
@@ -123,7 +125,7 @@ def toggle_task(request, task_id):
     task.save()
     return redirect('dashboard')
 
-
+@never_cache
 @login_required
 def update_task(request, task_id):
     task = get_object_or_404(Task, id=task_id, user=request.user)
@@ -136,7 +138,7 @@ def update_task(request, task_id):
         form = TaskForm(instance=task)
     return render(request, 'todo/update_task.html', {'form': form, 'task': task})
 
-
+@never_cache
 @login_required
 @require_POST
 def delete_task(request, task_id):
@@ -144,7 +146,7 @@ def delete_task(request, task_id):
     task.delete()
     return redirect('dashboard')
 
-
+@never_cache
 @login_required
 def todo_list_view(request):
     today    = date.today()
@@ -197,7 +199,7 @@ def _calendar_redirect(task):
         url = reverse('calendar')
     return redirect(url)
 
-
+@never_cache
 @login_required
 def calendar_view(request):
     today = date.today()
@@ -299,7 +301,7 @@ def calendar_view(request):
         'next_year': next_year, 'next_month': next_month,
     })
 
-
+@never_cache
 @login_required
 def calendar_add_task(request):
     due_date = request.GET.get('date', '')
@@ -321,7 +323,7 @@ def calendar_add_task(request):
         'year': year, 'month': month, 'due_date': due_date, 'is_edit': False,
     })
 
-
+@never_cache
 @login_required
 def calendar_edit_task(request, task_id):
     task  = get_object_or_404(Task, id=task_id, user=request.user)
@@ -341,7 +343,7 @@ def calendar_edit_task(request, task_id):
         'task': task, 'year': year, 'month': month, 'is_edit': True,
     })
 
-
+@never_cache
 @login_required
 def calendar_delete_task(request, task_id):
     task  = get_object_or_404(Task, id=task_id, user=request.user)
@@ -361,7 +363,7 @@ def calendar_delete_task(request, task_id):
 
 
 # ─── Schedule CRUD ────────────────────────────────────────────────────────────
-
+@never_cache
 @login_required
 def schedule_view(request):
     today    = date.today()
@@ -396,7 +398,7 @@ def schedule_view(request):
         'stat_overdue':     stat_overdue,
     })
 
-
+@never_cache
 @login_required
 def schedule_add(request):
     date_param = request.GET.get('date', '')
@@ -414,7 +416,7 @@ def schedule_add(request):
         'form': form, 'form_title': 'Add Schedule', 'is_edit': False,
     })
 
-
+@never_cache
 @login_required
 def schedule_edit(request, schedule_id):
     schedule = get_object_or_404(Schedule, id=schedule_id, user=request.user)
@@ -431,7 +433,7 @@ def schedule_edit(request, schedule_id):
         'schedule': schedule, 'is_edit': True,
     })
 
-
+@never_cache
 @login_required
 def schedule_delete(request, schedule_id):
     schedule = get_object_or_404(Schedule, id=schedule_id, user=request.user)
@@ -440,7 +442,7 @@ def schedule_delete(request, schedule_id):
         return redirect('schedule')
     return render(request, 'dashboard/schedule_delete.html', {'schedule': schedule})
 
-
+@never_cache
 @login_required
 @require_POST
 def schedule_toggle(request, schedule_id):
