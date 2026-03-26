@@ -208,7 +208,7 @@ def verify_otp_view(request):
 
 
 # ─── Login ─────────────────────────────────────────────────────────────────────
-
+@never_cache
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
