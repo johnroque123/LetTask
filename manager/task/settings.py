@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'notes',
     'habits',
 ]
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
