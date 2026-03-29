@@ -15,37 +15,18 @@ from .models import Note
 MAX_IMAGE_BYTES = 5 * 1024 * 1024  # 5 MB
 
 
-@never_cache
-@login_required
-def notes_view(request):
-    notes  = Note.objects.filter(user=request.user, is_archived=False)
-    pinned = notes.filter(is_pinned=True)
-    others = notes.filter(is_pinned=False)
-
-    return render(request, 'notes/notes.html', {
-        'pinned': pinned,
-        'others': others,
-        'total': notes.count(),
-    })
-
-
-@never_cache
-@login_required
-def archived_notes_view(request):
-    notes = Note.objects.filter(user=request.user, is_archived=True).order_by('-updated_at')
-
-    return render(request, 'notes/archived_notes.html', {
-        'archived': notes,
-        'total': notes.count(),
-    })
-
-
+# =========================
+# HELPERS
+# =========================
 def _save_image_from_b64(b64_data_uri):
+    """
+    Convert base64 image (data URI) into Django file.
+    """
     try:
         header, data = b64_data_uri.split(',', 1)
 
-        mime = header.split(':')[1].split(';')[0]   # image/jpeg
-        ext  = mime.split('/')[1]                   # jpeg
+        mime = header.split(':')[1].split(';')[0]  # image/jpeg
+        ext  = mime.split('/')[1]                  # jpeg
 
         if ext == 'jpeg':
             ext = 'jpg'
@@ -60,6 +41,32 @@ def _save_image_from_b64(b64_data_uri):
 
     except Exception:
         return None, 'invalid'
+
+
+# =========================
+# VIEWS
+# =========================
+@never_cache
+@login_required
+def notes_view(request):
+    notes = Note.objects.filter(user=request.user, is_archived=False)
+
+    return render(request, 'notes/notes.html', {
+        'pinned': notes.filter(is_pinned=True),
+        'others': notes.filter(is_pinned=False),
+        'total': notes.count(),
+    })
+
+
+@never_cache
+@login_required
+def archived_notes_view(request):
+    notes = Note.objects.filter(user=request.user, is_archived=True).order_by('-updated_at')
+
+    return render(request, 'notes/archived_notes.html', {
+        'archived': notes,
+        'total': notes.count(),
+    })
 
 
 # =========================
@@ -80,6 +87,7 @@ def note_create(request):
     mode    = data.get('mode', 'text')
     b64_img = data.get('image')
 
+    # ✅ validation
     if not content:
         return JsonResponse({
             'ok': False,
@@ -94,10 +102,16 @@ def note_create(request):
         mode=mode
     )
 
+    # image
     if b64_img:
         file, err = _save_image_from_b64(b64_img)
+
         if err == 'too_large':
             return JsonResponse({'ok': False, 'error': 'Image exceeds 5 MB.'}, status=400)
+
+        if err == 'invalid':
+            return JsonResponse({'ok': False, 'error': 'Invalid image format.'}, status=400)
+
         if file:
             note.image.save(file.name, file, save=False)
 
@@ -130,14 +144,22 @@ def note_update(request, note_id):
     except json.JSONDecodeError:
         return JsonResponse({'ok': False, 'error': 'Invalid JSON'}, status=400)
 
-    content = (data.get('content', note.content) or '').strip()
+    title   = (data.get('title') or '').strip()
+    content = (data.get('content') or '').strip()
 
-    # ❌ REMOVED CHARACTER LIMIT (FIXED YOUR BUG)
+    # ✅ validation (fixes 400 issue properly)
+    if not content:
+        return JsonResponse({
+            'ok': False,
+            'errors': {'content': ['This field is required.']}
+        }, status=400)
 
-    note.title = (data.get('title', note.title) or '').strip()
+    note.title = title
     note.content = content
     note.color = data.get('color', note.color)
-    note.mode = data.get('mode', getattr(note, 'mode', 'text'))
+    note.mode  = data.get('mode', note.mode)
+
+    # ── IMAGE HANDLING ──
 
     # remove image
     if data.get('remove_image') and note.image:
@@ -155,10 +177,14 @@ def note_update(request, note_id):
         if err == 'too_large':
             return JsonResponse({'ok': False, 'error': 'Image exceeds 5 MB.'}, status=400)
 
+        if err == 'invalid':
+            return JsonResponse({'ok': False, 'error': 'Invalid image format.'}, status=400)
+
         if file:
             note.image.save(file.name, file, save=False)
 
-    note.save(update_fields=['title', 'content', 'color', 'mode', 'image', 'updated_at'])
+    # ✅ safe save
+    note.save()
 
     return JsonResponse({
         'ok': True,
@@ -196,7 +222,10 @@ def note_toggle_pin(request, note_id):
     note.is_pinned = not note.is_pinned
     note.save(update_fields=['is_pinned'])
 
-    return JsonResponse({'ok': True, 'is_pinned': note.is_pinned})
+    return JsonResponse({
+        'ok': True,
+        'is_pinned': note.is_pinned
+    })
 
 
 # =========================
@@ -215,4 +244,7 @@ def note_toggle_archive(request, note_id):
 
     note.save(update_fields=['is_archived', 'is_pinned'])
 
-    return JsonResponse({'ok': True, 'is_archived': note.is_archived})
+    return JsonResponse({
+        'ok': True,
+        'is_archived': note.is_archived
+    })

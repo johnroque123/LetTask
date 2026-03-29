@@ -3,10 +3,10 @@
 <div class="note-card group relative rounded-2xl border border-slate-200 p-4 cursor-pointer transition hover:shadow-md"
      style="background-color: {% if color == 'yellow' %}#fef9c3{% elif color == 'blue' %}#dbeafe{% elif color == 'green' %}#dcfce7{% elif color == 'pink' %}#fce7f3{% elif color == 'purple' %}#ede9fe{% else %}#ffffff{% endif %};"
      data-note-id="{{ note.pk }}"
-     data-title="{{ note.title|escapejs }}"
-     data-content="{{ note.content|escapejs }}"
-     data-titleraw="{{ note.title|lower }}"
-     data-contentraw="{{ note.content|lower }}"
+     data-title="{{ note.title|force_escape }}"
+     data-content="{{ note.content|force_escape }}"
+     data-titleraw="{{ note.title|lower|force_escape }}"
+     data-contentraw="{{ note.content|lower|force_escape }}"
      data-color="{{ note.color }}"
      data-mode="{{ note.mode }}"
      data-image="{% if note.image %}{{ note.image.url }}{% endif %}"
@@ -39,9 +39,10 @@
              onclick="event.stopPropagation()">
             <!-- Pin -->
             <button onclick="togglePin({{ note.pk }}, this)" title="{% if note.is_pinned %}Unpin{% else %}Pin{% endif %}"
-                    class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/10 transition text-slate-400 hover:text-slate-700 {% if note.is_pinned %}text-yellow-500{% endif %}">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/10 transition
+                           {% if note.is_pinned %}text-yellow-500{% else %}text-slate-400 hover:text-slate-700{% endif %}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="{% if note.is_pinned %}currentColor{% else %}none{% endif %}"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="17" x2="12" y2="22"/>
                     <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17z"/>
                 </svg>

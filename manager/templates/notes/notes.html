@@ -500,64 +500,157 @@ async function saveNote() {
     const content = document.getElementById('modal-content').value.trim();
     const errEl   = document.getElementById('modal-error');
 
-    if (!content) { errEl.classList.remove('hidden'); document.getElementById('modal-content').focus(); return; }
+    // ✅ validation
+    if (!content) {
+        errEl.classList.remove('hidden');
+        document.getElementById('modal-content').focus();
+        return;
+    }
+
     if (content.length > CHAR_LIMIT) return;
+
     errEl.classList.add('hidden');
 
     const btn = document.getElementById('modal-save-btn');
-    btn.disabled = true; btn.textContent = 'Saving…';
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
 
     try {
-        if (editingNoteId) {
-            const payload = {
-                title, content,
-                color:        activeColor,
-                mode:         activeMode,
-                remove_image: _removeImage,
-            };
-            if (_pendingImageB64) payload.image = _pendingImageB64;
+        const payload = {
+            title,
+            content,
+            color: activeColor,
+            mode: activeMode,
+        };
 
-            const res  = await fetch(`/notes/${editingNoteId}/update/`, {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
-                body:    JSON.stringify(payload),
-            });
-            const data = await res.json();
+        // image flags
+        if (editingNoteId) {
+            payload.remove_image = _removeImage;
+        }
+        if (_pendingImageB64) {
+            payload.image = _pendingImageB64;
+        }
+
+        const url = editingNoteId
+            ? `/notes/${editingNoteId}/update/`
+            : CREATE_URL;
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': CSRF
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        // ❗ CRITICAL FIX (THIS WAS MISSING)
+        if (!res.ok) {
+            console.error('Server Error:', data);
+
+            if (data.errors?.content) {
+                errEl.textContent = data.errors.content[0];
+                errEl.classList.remove('hidden');
+            } else {
+                alert(data.error || 'Something went wrong');
+            }
+
+            return;
+        }
+
+        // ─────────────────────────────
+        // ✅ UPDATE EXISTING NOTE
+        // ─────────────────────────────
+        if (editingNoteId) {
             if (data.ok) {
                 const card = document.querySelector(`[data-note-id="${editingNoteId}"]`);
+
                 if (card) {
+                    // background
                     card.style.backgroundColor = COLOR_HEX[activeColor] || '#fff';
-                    card.dataset.title       = title;
-                    card.dataset.content     = content;
-                    card.dataset.titleraw    = title.toLowerCase();
-                    card.dataset.contentraw  = content.toLowerCase();
-                    card.dataset.color       = activeColor;
-                    card.dataset.mode        = activeMode;
-                    card.dataset.image       = data.image_url || '';
-                    card.querySelector('.note-title').textContent  = title || 'Untitled';
-                    // update content preview
-                    const nc = card.querySelector('.note-content');
-                    if (nc) nc.textContent = content;
-                    card.querySelector('.note-date').textContent   = data.updated;
+
+                    // dataset update
+                    card.dataset.title      = title;
+                    card.dataset.content    = content;
+                    card.dataset.titleraw   = title.toLowerCase();
+                    card.dataset.contentraw = content.toLowerCase();
+                    card.dataset.color      = activeColor;
+                    card.dataset.mode       = activeMode;
+                    card.dataset.image      = data.image_url || '';
+
+                    // title
+                    const titleEl = card.querySelector('.note-title');
+                    if (titleEl) {
+                        titleEl.textContent = title || 'Untitled';
+                    }
+
+                    // content preview
+                    const contentEl = card.querySelector('.note-content');
+
+                    if (contentEl) {
+                        if (activeMode === 'list') {
+                            contentEl.innerHTML = content
+                                .split('\n')
+                                .filter(l => l.trim())
+                                .map(l => `
+                                    <li class="flex items-start gap-1.5 text-xs text-slate-600">
+                                        <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span>
+                                        <span>${escHtml(l)}</span>
+                                    </li>
+                                `).join('');
+                        } else {
+                            contentEl.textContent = content;
+                        }
+                    }
+
+                    // image update
+                    const oldImg = card.querySelector('img');
+
+                    if (data.image_url) {
+                        if (oldImg) {
+                            oldImg.src = data.image_url;
+                        } else {
+                            // create image block
+                            const imgDiv = document.createElement('div');
+                            imgDiv.className = 'mb-3 -mx-4 -mt-4 overflow-hidden rounded-t-2xl h-32';
+                            imgDiv.innerHTML = `<img src="${data.image_url}" class="w-full h-full object-cover">`;
+                            card.insertBefore(imgDiv, card.firstChild);
+                        }
+                    } else if (oldImg) {
+                        oldImg.parentElement.remove();
+                    }
+
+                    // date
+                    const dateEl = card.querySelector('.note-date');
+                    if (dateEl) {
+                        dateEl.textContent = data.updated;
+                    }
                 }
+
                 closeModal();
             }
+
+        // ─────────────────────────────
+        // ✅ CREATE NEW NOTE
+        // ─────────────────────────────
         } else {
-            const payload = { title, content, color: activeColor, mode: activeMode };
-            if (_pendingImageB64) payload.image = _pendingImageB64;
-
-            const res  = await fetch(CREATE_URL, {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
-                body:    JSON.stringify(payload),
-            });
-            const data = await res.json();
-            if (data.ok) { prependCard(data); closeModal(); updateCount(1); }
+            if (data.ok) {
+                prependCard(data);
+                closeModal();
+                updateCount(1);
+            }
         }
-    } catch (err) { console.error(err); }
-    finally { btn.disabled = false; btn.textContent = editingNoteId ? 'Save Changes' : 'Save Note'; }
-}
 
+    } catch (err) {
+        console.error('Network Error:', err);
+        alert('Network error. Try again.');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = editingNoteId ? 'Save Changes' : 'Save Note';
+    }
+}
 
 // ── Build new card ────────────────────────────────────────────────
 function prependCard(data) {
