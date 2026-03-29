@@ -5,6 +5,59 @@
 {% block page_subtitle %}Your personal notes{% endblock %}
 
 {% block content %}
+<style>
+/* ── List mode preview in card ── */
+.note-list-preview { list-style: none; margin: 0; padding: 0; }
+
+/* ── Image preview in modal ── */
+#img-preview-wrap { position: relative; }
+#img-preview { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; display: block; }
+#img-remove-btn {
+    position: absolute; top: 6px; right: 6px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(0,0,0,.55); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px; line-height: 1;
+}
+#img-remove-btn:hover { background: rgba(0,0,0,.8); }
+
+/* ── Mode toggle ── */
+.mode-toggle { display: flex; gap: 4px; background: #f1f5f9; border-radius: 10px; padding: 3px; }
+.mode-btn {
+    flex: 1; padding: 5px 10px; border-radius: 8px; border: none;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    color: #64748b; background: transparent; transition: all .15s;
+}
+.mode-btn.active { background: #fff; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+/* ── Char counter ── */
+#char-counter { font-size: 11px; color: #94a3b8; text-align: right; margin-top: 3px; }
+#char-counter.warn { color: #f59e0b; }
+#char-counter.over  { color: #ef4444; font-weight: 600; }
+
+/* ── Image upload zone ── */
+.img-upload-zone {
+    border: 1.5px dashed #cbd5e1; border-radius: 10px;
+    padding: 12px; text-align: center; cursor: pointer;
+    transition: border-color .15s, background .15s;
+    font-size: 12px; color: #94a3b8;
+    display: flex; align-items: center; justify-content: center; gap-6px;
+}
+.img-upload-zone:hover { border-color: #94a3b8; background: #f8fafc; color: #64748b; }
+
+/* ── View modal image ── */
+#view-note-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 12px; }
+
+/* ── List items in view modal ── */
+#view-note-list { list-style: none; padding: 0; margin: 0; }
+#view-note-list li { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 13px; color: #475569; }
+#view-note-list li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; flex-shrink: 0; margin-top: 7px; }
+
+/* ── List textarea helper ── */
+#modal-content.list-mode { font-family: 'Geist Mono', monospace; font-size: 12.5px; }
+</style>
+
 <div class="max-w-5xl mx-auto space-y-6">
 
     <!-- Top bar -->
@@ -23,7 +76,6 @@
             <span id="note-count" class="text-xs text-slate-400 font-medium">
                 {{ total }} note{{ total|pluralize }}
             </span>
-
             <a href="{% url 'notes_archived' %}"
                class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-slate-700 transition">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -52,9 +104,7 @@
             Pinned
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" id="pinned-grid">
-            {% for note in pinned %}
-                {% include "notes/_note_card.html" %}
-            {% endfor %}
+            {% for note in pinned %}{% include "notes/_note_card.html" %}{% endfor %}
         </div>
     </div>
     {% endif %}
@@ -62,13 +112,9 @@
     <!-- Others section -->
     {% if others %}
     <div id="others-section">
-        {% if pinned %}
-        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Others</p>
-        {% endif %}
+        {% if pinned %}<p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Others</p>{% endif %}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" id="notes-grid">
-            {% for note in others %}
-                {% include "notes/_note_card.html" %}
-            {% endfor %}
+            {% for note in others %}{% include "notes/_note_card.html" %}{% endfor %}
         </div>
     </div>
     {% endif %}
@@ -76,11 +122,19 @@
     <!-- Empty state -->
     {% if not pinned and not others %}
     <div id="empty-state" class="bg-white rounded-2xl border border-slate-200 text-center py-20">
-        <div class="text-4xl mb-3">📝</div>
+        <div class="flex justify-center mb-3 text-slate-300">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+            </svg>
+        </div>
         <p class="text-sm font-semibold text-slate-600">No notes yet.</p>
         <p class="text-xs text-slate-400 mt-1">Click + New Note to create your first one.</p>
         <button onclick="openCreateModal()"
-                class="inline-block mt-4 px-5 py-2.5 text-white text-sm font-semibold rounded-xl transition"
+                class="inline-flex items-center gap-2 mt-4 px-5 py-2.5 text-white text-sm font-semibold rounded-xl transition"
                 style="background: linear-gradient(135deg, #1e293b, #334155);">
             + New Note
         </button>
@@ -91,31 +145,21 @@
 
 
 <!-- ── View Note Modal ─────────────────────────────────────────────── -->
-<div id="view-note-modal"
-     class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+<div id="view-note-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeViewModal()"></div>
     <div id="view-note-card"
          class="relative w-full max-w-md rounded-2xl border border-slate-200 shadow-2xl overflow-hidden z-10">
-
-        <!-- Color bar -->
         <div id="view-color-bar" class="h-2 w-full transition-colors duration-200"></div>
-
         <div class="p-6">
-            <!-- Header -->
             <div class="flex items-start justify-between gap-3 mb-4">
-                <h2 id="view-note-title"
-                    class="text-base font-bold text-slate-800 leading-snug break-words"></h2>
-                <button onclick="closeViewModal()"
-                        class="text-slate-400 hover:text-slate-600 text-xl leading-none shrink-0">✕</button>
+                <h2 id="view-note-title" class="text-base font-bold text-slate-800 leading-snug break-words"></h2>
+                <button onclick="closeViewModal()" class="text-slate-400 hover:text-slate-600 text-xl leading-none shrink-0">✕</button>
             </div>
-
-            <!-- Content -->
-            <div class="max-h-72 overflow-y-auto mb-6">
-                <p id="view-note-content"
-                   class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap"></p>
+            <div class="max-h-80 overflow-y-auto mb-6">
+                <img id="view-note-img" src="" alt="" class="hidden">
+                <p id="view-note-content" class="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap"></p>
+                <ul id="view-note-list" class="hidden"></ul>
             </div>
-
-            <!-- Footer -->
             <div class="flex items-center justify-between pt-2 border-t border-slate-100">
                 <p id="view-note-date" class="text-xs text-slate-400"></p>
                 <button onclick="switchToEdit()"
@@ -139,14 +183,12 @@
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal()"></div>
     <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden z-10">
 
-        <div id="modal-color-bar" class="h-2 w-full transition-colors duration-200"
-             style="background:#fde047;"></div>
+        <div id="modal-color-bar" class="h-2 w-full transition-colors duration-200" style="background:#fde047;"></div>
 
         <div class="p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 id="modal-heading" class="text-base font-bold text-slate-800">New Note</h3>
-                <button onclick="closeModal()"
-                        class="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
             </div>
 
             <!-- Color swatches -->
@@ -154,42 +196,89 @@
                 <button type="button" onclick="selectColor('yellow')" data-color="yellow"
                         class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
                         style="background:#fef9c3; border:2px solid #64748b;" title="Yellow"></button>
-                <button type="button" onclick="selectColor('blue')"   data-color="blue"
+                <button type="button" onclick="selectColor('blue')" data-color="blue"
                         class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
                         style="background:#dbeafe; border:2px solid transparent;" title="Blue"></button>
-                <button type="button" onclick="selectColor('green')"  data-color="green"
+                <button type="button" onclick="selectColor('green')" data-color="green"
                         class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
                         style="background:#dcfce7; border:2px solid transparent;" title="Green"></button>
-                <button type="button" onclick="selectColor('pink')"   data-color="pink"
+                <button type="button" onclick="selectColor('pink')" data-color="pink"
                         class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
                         style="background:#fce7f3; border:2px solid transparent;" title="Pink"></button>
                 <button type="button" onclick="selectColor('purple')" data-color="purple"
                         class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
                         style="background:#ede9fe; border:2px solid transparent;" title="Purple"></button>
-                <button type="button" onclick="selectColor('white')"  data-color="white"
+                <button type="button" onclick="selectColor('white')" data-color="white"
                         class="color-swatch w-6 h-6 rounded-full transition-all hover:scale-110"
                         style="background:#ffffff; border:2px solid #e2e8f0;" title="White"></button>
+
+                <!-- Spacer -->
+                <div class="flex-1"></div>
+
+                <!-- Mode toggle -->
+                <div class="mode-toggle">
+                    <button type="button" class="mode-btn active" id="mode-text-btn" onclick="setMode('text')" title="Text note">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/>
+                            <line x1="21" y1="14" x2="3" y2="14"/><line x1="17" y1="18" x2="3" y2="18"/>
+                        </svg>
+                        Text
+                    </button>
+                    <button type="button" class="mode-btn" id="mode-list-btn" onclick="setMode('list')" title="List note">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                            <line x1="8" y1="18" x2="21" y2="18"/>
+                            <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+                            <line x1="3" y1="18" x2="3.01" y2="18"/>
+                        </svg>
+                        List
+                    </button>
+                </div>
             </div>
 
+            <!-- Title -->
             <input type="text" id="modal-title" placeholder="Title (optional)"
                    class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm
                           focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3">
-            <textarea id="modal-content" placeholder="Write your note..." rows="5"
-                      class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm
-                             focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
-            <p id="modal-error" class="text-xs text-red-500 mt-1 hidden">Content cannot be empty.</p>
+
+            <!-- Content + counter -->
+            <div class="relative">
+                <textarea id="modal-content" placeholder="Write your note…" rows="5"
+                          class="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm
+                                 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                          maxlength="10000" oninput="onContentInput()"></textarea>
+                <p id="list-hint" class="hidden text-xs text-slate-400 mt-1">One item per line.</p>
+            </div>
+            <div class="flex items-center justify-between mt-1">
+                <p id="modal-error" class="text-xs text-red-500 hidden">Content cannot be empty.</p>
+                <p id="char-counter" class="ml-auto">0 / 10000</p>
+            </div>
+
+            <!-- Image upload -->
+            <div class="mt-3" id="img-section">
+                <div id="img-preview-wrap" class="hidden mb-2">
+                    <img id="img-preview" src="" alt="Preview">
+                    <button type="button" id="img-remove-btn" onclick="removeImage()" title="Remove image">✕</button>
+                </div>
+                <label for="img-file-input" class="img-upload-zone" id="img-upload-label">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                    Add image (max 5 MB)
+                </label>
+                <input type="file" id="img-file-input" accept="image/*" class="hidden" onchange="onImagePick(event)">
+                <p id="img-error" class="text-xs text-red-500 mt-1 hidden">Image must be under 5 MB.</p>
+            </div>
 
             <div class="flex gap-3 mt-4">
                 <button onclick="closeModal()"
                         class="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold
-                               text-slate-600 hover:bg-slate-50 transition">
-                    Cancel
-                </button>
+                               text-slate-600 hover:bg-slate-50 transition">Cancel</button>
                 <button id="modal-save-btn" onclick="saveNote()"
                         class="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-700
-                               text-white text-sm font-semibold transition">
-                    Save Note
-                </button>
+                               text-white text-sm font-semibold transition">Save Note</button>
             </div>
         </div>
     </div>
@@ -199,44 +288,122 @@
 <script>
 const CSRF       = '{{ csrf_token }}';
 const CREATE_URL = '{% url "note_create" %}';
+const CHAR_LIMIT = 10000;
 
-const COLOR_HEX = {
-    yellow: '#fef9c3',
-    blue:   '#dbeafe',
-    green:  '#dcfce7',
-    pink:   '#fce7f3',
-    purple: '#ede9fe',
-    white:  '#ffffff',
-};
-const COLOR_BAR = {
-    yellow: '#fde047',
-    blue:   '#60a5fa',
-    green:  '#4ade80',
-    pink:   '#f472b6',
-    purple: '#a78bfa',
-    white:  '#e2e8f0',
-};
+const COLOR_HEX = { yellow:'#fef9c3', blue:'#dbeafe', green:'#dcfce7', pink:'#fce7f3', purple:'#ede9fe', white:'#ffffff' };
+const COLOR_BAR = { yellow:'#fde047', blue:'#60a5fa', green:'#4ade80', pink:'#f472b6', purple:'#a78bfa', white:'#e2e8f0' };
 
 let activeColor      = 'yellow';
+let activeMode       = 'text';   // 'text' | 'list'
 let editingNoteId    = null;
-let _currentViewCard = null;   // card element held while view modal is open
+let _currentViewCard = null;
+let _pendingImageB64 = null;     // base64 data URI for new uploads
+let _removeImage     = false;    // flag: user removed existing image on edit
+
+
+// ── Char counter ──────────────────────────────────────────────────
+function onContentInput() {
+    const ta  = document.getElementById('modal-content');
+    const el  = document.getElementById('char-counter');
+    
+    if (ta.value.length > CHAR_LIMIT) {
+        ta.value = ta.value.slice(0, CHAR_LIMIT); // Trim to limit
+    }
+    
+    const len = ta.value.length;
+    el.textContent = `${len} / ${CHAR_LIMIT}`;
+    el.className   = len >= CHAR_LIMIT ? 'over' : len >= CHAR_LIMIT * 0.85 ? 'warn' : '';
+}
+
+// ── Mode toggle ───────────────────────────────────────────────────
+function setMode(mode) {
+    activeMode = mode;
+    const ta   = document.getElementById('modal-content');
+    document.getElementById('mode-text-btn').classList.toggle('active', mode === 'text');
+    document.getElementById('mode-list-btn').classList.toggle('active', mode === 'list');
+    document.getElementById('list-hint').classList.toggle('hidden', mode === 'text');
+    if (mode === 'list') {
+        ta.placeholder = 'One item per line…';
+        ta.classList.add('list-mode');
+    } else {
+        ta.placeholder = 'Write your note…';
+        ta.classList.remove('list-mode');
+    }
+}
+
+
+// ── Image picker ──────────────────────────────────────────────────
+function onImagePick(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+        document.getElementById('img-error').classList.remove('hidden');
+        e.target.value = '';
+        return;
+    }
+    document.getElementById('img-error').classList.add('hidden');
+    const reader = new FileReader();
+    reader.onload = ev => {
+        _pendingImageB64 = ev.target.result;
+        document.getElementById('img-preview').src = _pendingImageB64;
+        document.getElementById('img-preview-wrap').classList.remove('hidden');
+        document.getElementById('img-upload-label').classList.add('hidden');
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeImage() {
+    _pendingImageB64 = null;
+    _removeImage     = true;
+    document.getElementById('img-preview').src = '';
+    document.getElementById('img-preview-wrap').classList.add('hidden');
+    document.getElementById('img-upload-label').classList.remove('hidden');
+    document.getElementById('img-file-input').value = '';
+}
+
+function resetImageUI() {
+    _pendingImageB64 = null;
+    _removeImage     = false;
+    document.getElementById('img-preview-wrap').classList.add('hidden');
+    document.getElementById('img-upload-label').classList.remove('hidden');
+    document.getElementById('img-file-input').value = '';
+    document.getElementById('img-error').classList.add('hidden');
+}
 
 
 // ── View modal ────────────────────────────────────────────────────
-
 function openViewFromCard(card) {
     _currentViewCard = card;
-
     const title   = decodeAttr(card.dataset.title);
     const content = decodeAttr(card.dataset.content);
     const color   = card.dataset.color || 'white';
+    const mode    = card.dataset.mode  || 'text';
+    const imgUrl  = card.dataset.image || '';
     const date    = card.querySelector('.note-date')?.textContent.trim() ?? '';
 
-    document.getElementById('view-note-title').textContent   = title || 'Untitled';
-    document.getElementById('view-note-content').textContent = content;
-    document.getElementById('view-note-date').textContent    = date;
+    document.getElementById('view-note-title').textContent = title || 'Untitled';
+    document.getElementById('view-note-date').textContent  = date;
     document.getElementById('view-note-card').style.backgroundColor = COLOR_HEX[color] ?? '#ffffff';
     document.getElementById('view-color-bar').style.backgroundColor = COLOR_BAR[color] ?? '#e2e8f0';
+
+    // image
+    const imgEl = document.getElementById('view-note-img');
+    if (imgUrl) { imgEl.src = imgUrl; imgEl.classList.remove('hidden'); }
+    else        { imgEl.src = '';     imgEl.classList.add('hidden'); }
+
+    // content
+    const textEl = document.getElementById('view-note-content');
+    const listEl = document.getElementById('view-note-list');
+    if (mode === 'list') {
+        textEl.classList.add('hidden');
+        listEl.classList.remove('hidden');
+        listEl.innerHTML = content.split('\n').filter(l => l.trim())
+            .map(l => `<li>${escHtml(l)}</li>`).join('');
+    } else {
+        listEl.classList.add('hidden');
+        textEl.classList.remove('hidden');
+        textEl.textContent = content;
+    }
 
     const modal = document.getElementById('view-note-modal');
     modal.classList.remove('hidden');
@@ -259,7 +426,6 @@ function switchToEdit() {
 
 
 // ── Create modal ──────────────────────────────────────────────────
-
 function openCreateModal() {
     editingNoteId = null;
     document.getElementById('modal-heading').textContent  = 'New Note';
@@ -267,281 +433,246 @@ function openCreateModal() {
     document.getElementById('modal-content').value        = '';
     document.getElementById('modal-error').classList.add('hidden');
     document.getElementById('modal-save-btn').textContent = 'Save Note';
+    onContentInput();
+    setMode('text');
     selectColor('yellow');
+    resetImageUI();
     document.getElementById('note-modal').classList.replace('hidden', 'flex');
     document.getElementById('modal-title').focus();
 }
 
 
 // ── Edit modal ────────────────────────────────────────────────────
-
 function openEditFromCard(el) {
-    openEditModal(
-        el.dataset.noteId,
-        el.dataset.title,
-        el.dataset.content,
-        el.dataset.color
-    );
+    openEditModal(el.dataset.noteId, el.dataset.title, el.dataset.content, el.dataset.color, el.dataset.mode, el.dataset.image);
 }
 
-function openEditModal(id, title, content, color) {
+function openEditModal(id, title, content, color, mode, imgUrl) {
     editingNoteId = id;
     document.getElementById('modal-heading').textContent  = 'Edit Note';
     document.getElementById('modal-title').value          = decodeAttr(title);
     document.getElementById('modal-content').value        = decodeAttr(content);
     document.getElementById('modal-error').classList.add('hidden');
     document.getElementById('modal-save-btn').textContent = 'Save Changes';
+    onContentInput();
+    setMode(mode || 'text');
     selectColor(color || 'yellow');
+    resetImageUI();
+    _removeImage = false;
+
+    // show existing image if any
+    if (imgUrl) {
+        document.getElementById('img-preview').src = imgUrl;
+        document.getElementById('img-preview-wrap').classList.remove('hidden');
+        document.getElementById('img-upload-label').classList.add('hidden');
+    }
+
     document.getElementById('note-modal').classList.replace('hidden', 'flex');
     document.getElementById('modal-content').focus();
 }
 
 
-// ── Close edit/create modal ───────────────────────────────────────
-
+// ── Close modal ───────────────────────────────────────────────────
 function closeModal() {
     document.getElementById('note-modal').classList.replace('flex', 'hidden');
     editingNoteId = null;
 }
 
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-        closeModal();
-        closeViewModal();
-    }
+    if (e.key === 'Escape') { closeModal(); closeViewModal(); }
 });
 
 
 // ── Color picker ──────────────────────────────────────────────────
-
 function selectColor(color) {
     activeColor = color;
     document.querySelectorAll('.color-swatch').forEach(s => {
         s.style.borderColor = s.dataset.color === color ? '#64748b' : 'transparent';
-        if (s.dataset.color === 'white') {
-            s.style.borderColor = s.dataset.color === color ? '#64748b' : '#e2e8f0';
-        }
+        if (s.dataset.color === 'white') s.style.borderColor = s.dataset.color === color ? '#64748b' : '#e2e8f0';
     });
     document.getElementById('modal-color-bar').style.backgroundColor = COLOR_BAR[color] || '#e2e8f0';
 }
 
 
-// ── Save (create or update) ───────────────────────────────────────
-
+// ── Save ──────────────────────────────────────────────────────────
 async function saveNote() {
     const title   = document.getElementById('modal-title').value.trim();
     const content = document.getElementById('modal-content').value.trim();
     const errEl   = document.getElementById('modal-error');
 
-    if (!content) {
-        errEl.classList.remove('hidden');
-        document.getElementById('modal-content').focus();
-        return;
-    }
+    if (!content) { errEl.classList.remove('hidden'); document.getElementById('modal-content').focus(); return; }
+    if (content.length > CHAR_LIMIT) return;
     errEl.classList.add('hidden');
 
     const btn = document.getElementById('modal-save-btn');
-    btn.disabled    = true;
-    btn.textContent = 'Saving…';
+    btn.disabled = true; btn.textContent = 'Saving…';
 
     try {
         if (editingNoteId) {
+            const payload = {
+                title, content,
+                color:        activeColor,
+                mode:         activeMode,
+                remove_image: _removeImage,
+            };
+            if (_pendingImageB64) payload.image = _pendingImageB64;
+
             const res  = await fetch(`/notes/${editingNoteId}/update/`, {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
-                body:    JSON.stringify({ title, content, color: activeColor }),
+                body:    JSON.stringify(payload),
             });
             const data = await res.json();
             if (data.ok) {
                 const card = document.querySelector(`[data-note-id="${editingNoteId}"]`);
                 if (card) {
-                    card.style.backgroundColor              = COLOR_HEX[activeColor] || '#fff';
-                    card.dataset.title                      = title;
-                    card.dataset.content                    = content;
-                    card.dataset.titleraw                   = title.toLowerCase();
-                    card.dataset.contentraw                 = content.toLowerCase();
-                    card.dataset.color                      = activeColor;
-                    card.querySelector('.note-title').textContent   = title || 'Untitled';
-                    card.querySelector('.note-content').textContent = content;
-                    card.querySelector('.note-date').textContent    = data.updated;
+                    card.style.backgroundColor = COLOR_HEX[activeColor] || '#fff';
+                    card.dataset.title       = title;
+                    card.dataset.content     = content;
+                    card.dataset.titleraw    = title.toLowerCase();
+                    card.dataset.contentraw  = content.toLowerCase();
+                    card.dataset.color       = activeColor;
+                    card.dataset.mode        = activeMode;
+                    card.dataset.image       = data.image_url || '';
+                    card.querySelector('.note-title').textContent  = title || 'Untitled';
+                    // update content preview
+                    const nc = card.querySelector('.note-content');
+                    if (nc) nc.textContent = content;
+                    card.querySelector('.note-date').textContent   = data.updated;
                 }
                 closeModal();
             }
         } else {
-            const form = new FormData();
-            form.append('title',   title);
-            form.append('content', content);
-            form.append('color',   activeColor);
+            const payload = { title, content, color: activeColor, mode: activeMode };
+            if (_pendingImageB64) payload.image = _pendingImageB64;
 
             const res  = await fetch(CREATE_URL, {
                 method:  'POST',
-                headers: { 'X-CSRFToken': CSRF },
-                body:    form,
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+                body:    JSON.stringify(payload),
             });
             const data = await res.json();
-            if (data.ok) {
-                prependCard(data);
-                closeModal();
-                updateCount(1);
-            }
+            if (data.ok) { prependCard(data); closeModal(); updateCount(1); }
         }
-    } catch (err) {
-        console.error(err);
-    } finally {
-        btn.disabled    = false;
-        btn.textContent = editingNoteId ? 'Save Changes' : 'Save Note';
-    }
+    } catch (err) { console.error(err); }
+    finally { btn.disabled = false; btn.textContent = editingNoteId ? 'Save Changes' : 'Save Note'; }
 }
 
 
-// ── Build and prepend a new card into the DOM ─────────────────────
-
+// ── Build new card ────────────────────────────────────────────────
 function prependCard(data) {
     let grid = document.getElementById('notes-grid');
-
     if (!grid) {
-        const section  = document.createElement('div');
-        section.id     = 'others-section';
-        section.innerHTML = `
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
-                 id="notes-grid"></div>`;
+        const section = document.createElement('div');
+        section.id    = 'others-section';
+        section.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" id="notes-grid"></div>`;
         document.querySelector('.max-w-5xl').appendChild(section);
         grid = document.getElementById('notes-grid');
     }
+    const bg       = COLOR_HEX[data.color] || '#ffffff';
+    const imgBlock = data.image_url
+        ? `<div class="mb-3 -mx-4 -mt-4 overflow-hidden rounded-t-2xl h-32"><img src="${escHtml(data.image_url)}" class="w-full h-full object-cover"></div>`
+        : '';
+    const listIcon = data.mode === 'list'
+        ? `<svg class="text-slate-400 shrink-0" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>` : '';
+    const contentHtml = data.mode === 'list'
+        ? `<ul class="note-content space-y-1">${data.content.split('\n').filter(l=>l.trim()).map(l=>`<li class="flex items-start gap-1.5 text-xs text-slate-600"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0"></span><span>${escHtml(l)}</span></li>`).join('')}</ul>`
+        : `<p class="note-content text-xs text-slate-600 leading-relaxed line-clamp-6 whitespace-pre-wrap">${escHtml(data.content)}</p>`;
 
-    const bg = COLOR_HEX[data.color] || '#ffffff';
     grid.insertAdjacentHTML('afterbegin', `
         <div class="note-card group relative rounded-2xl border border-slate-200 p-4 cursor-pointer transition hover:shadow-md"
              style="background-color:${bg};"
-             data-note-id="${data.id}"
-             data-title="${escAttr(data.title)}"
-             data-content="${escAttr(data.content)}"
-             data-titleraw="${escAttr((data.title || '').toLowerCase())}"
-             data-contentraw="${escAttr(data.content.toLowerCase())}"
-             data-color="${data.color}"
+             data-note-id="${data.id}" data-title="${escAttr(data.title)}" data-content="${escAttr(data.content)}"
+             data-titleraw="${escAttr((data.title||'').toLowerCase())}" data-contentraw="${escAttr(data.content.toLowerCase())}"
+             data-color="${data.color}" data-mode="${data.mode||'text'}" data-image="${escAttr(data.image_url||'')}"
              onclick="openViewFromCard(this)">
+            ${imgBlock}
             <div class="flex items-start justify-between gap-2 mb-2">
-                <p class="note-title text-sm font-semibold text-slate-800 truncate">
-                    ${data.title ? escHtml(data.title) : '<span class="text-slate-400 font-normal text-xs">Untitled</span>'}
-                </p>
-                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition shrink-0"
-                     onclick="event.stopPropagation()">
-                    <button onclick="togglePin(${data.id}, this)" title="Pin"
-                            class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/10 transition text-sm text-slate-400 hover:text-slate-700">
-                        📌
-                    </button>
-                    <button onclick="archiveNote(${data.id}, this)" title="Archive"
-                            class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-amber-100 text-slate-400 hover:text-amber-600 transition">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="21 8 21 21 3 21 3 8"/>
-                            <rect x="1" y="3" width="22" height="5"/>
-                            <line x1="10" y1="12" x2="14" y2="12"/>
+                <div class="flex items-center gap-1.5 min-w-0">
+                    ${listIcon}
+                    <p class="note-title text-sm font-semibold text-slate-800 truncate">
+                        ${data.title ? escHtml(data.title) : '<span class="text-slate-400 font-normal text-xs">Untitled</span>'}
+                    </p>
+                </div>
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition shrink-0" onclick="event.stopPropagation()">
+                    <button onclick="togglePin(${data.id},this)" title="Pin"
+                            class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/10 transition text-slate-400 hover:text-slate-700">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17z"/>
                         </svg>
                     </button>
-                    <button onclick="deleteNote(${data.id}, this)" title="Delete"
-                            class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-100 text-slate-400 hover:text-red-500 transition text-sm">
-                        🗑
+                    <button onclick="archiveNote(${data.id},this)" title="Archive"
+                            class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-amber-100 text-slate-400 hover:text-amber-600 transition">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/>
+                        </svg>
+                    </button>
+                    <button onclick="deleteNote(${data.id},this)" title="Delete"
+                            class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red-100 text-slate-400 hover:text-red-500 transition">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+                        </svg>
                     </button>
                 </div>
             </div>
-            <p class="note-content text-xs text-slate-600 leading-relaxed line-clamp-6 whitespace-pre-wrap">
-                ${escHtml(data.content)}
-            </p>
+            ${contentHtml}
             <p class="note-date text-xs text-slate-400 mt-3">${data.updated}</p>
-        </div>
-    `);
+        </div>`);
 
     const empty = document.getElementById('empty-state');
     if (empty) empty.style.display = 'none';
 }
 
 
-// ── Pin toggle ────────────────────────────────────────────────────
-
+// ── Pin / Delete / Archive ────────────────────────────────────────
 async function togglePin(id, btn) {
-    const res  = await fetch(`/notes/${id}/pin/`, {
-        method: 'POST', headers: { 'X-CSRFToken': CSRF },
-    });
-    const data = await res.json();
-    if (data.ok) location.reload();
+    const res = await fetch(`/notes/${id}/pin/`, { method:'POST', headers:{'X-CSRFToken':CSRF} });
+    const d   = await res.json();
+    if (d.ok) location.reload();
 }
-
-
-// ── Delete ────────────────────────────────────────────────────────
 
 async function deleteNote(id, btn) {
     if (!confirm('Delete this note?')) return;
-    const res  = await fetch(`/notes/${id}/delete/`, {
-        method: 'POST', headers: { 'X-CSRFToken': CSRF },
-    });
-    const data = await res.json();
-    if (data.ok) {
-        const card = document.querySelector(`[data-note-id="${id}"]`);
-        if (card) card.remove();
-        updateCount(-1);
-        checkEmptyState();
-    }
+    const res = await fetch(`/notes/${id}/delete/`, { method:'POST', headers:{'X-CSRFToken':CSRF} });
+    const d   = await res.json();
+    if (d.ok) { document.querySelector(`[data-note-id="${id}"]`)?.remove(); updateCount(-1); checkEmptyState(); }
 }
 
-
-// ── Archive ───────────────────────────────────────────────────────
-
 async function archiveNote(id, btn) {
-    const res  = await fetch(`/notes/${id}/archive/`, {
-        method: 'POST', headers: { 'X-CSRFToken': CSRF },
-    });
-    const data = await res.json();
-    if (data.ok) {
-        const card = document.querySelector(`[data-note-id="${id}"]`);
-        if (card) card.remove();
-        updateCount(-1);
-        checkEmptyState();
-    }
+    const res = await fetch(`/notes/${id}/archive/`, { method:'POST', headers:{'X-CSRFToken':CSRF} });
+    const d   = await res.json();
+    if (d.ok) { document.querySelector(`[data-note-id="${id}"]`)?.remove(); updateCount(-1); checkEmptyState(); }
 }
 
 
 // ── Search ────────────────────────────────────────────────────────
-
 document.getElementById('search-input').addEventListener('input', function () {
     const q = this.value.toLowerCase();
     document.querySelectorAll('.note-card').forEach(card => {
-        const haystack = (card.dataset.titleraw || '') + ' ' + (card.dataset.contentraw || '');
-        card.style.display = haystack.includes(q) ? '' : 'none';
+        const hay = (card.dataset.titleraw||'') + ' ' + (card.dataset.contentraw||'');
+        card.style.display = hay.includes(q) ? '' : 'none';
     });
 });
 
 
 // ── Helpers ───────────────────────────────────────────────────────
-
 function updateCount(delta) {
     const el = document.getElementById('note-count');
     if (!el) return;
-    const n = Math.max((parseInt(el.textContent) || 0) + delta, 0);
-    el.textContent = `${n} note${n !== 1 ? 's' : ''}`;
+    const n = Math.max((parseInt(el.textContent)||0)+delta, 0);
+    el.textContent = `${n} note${n!==1?'s':''}`;
 }
-
 function checkEmptyState() {
-    const remaining = document.querySelectorAll('.note-card').length;
-    if (remaining === 0) location.reload();
+    if (!document.querySelectorAll('.note-card').length) location.reload();
 }
-
 function decodeAttr(str) {
-    const txt = document.createElement('textarea');
-    txt.innerHTML = str;
-    return txt.value;
+    const t = document.createElement('textarea'); t.innerHTML = str; return t.value;
 }
-
 function escHtml(str) {
-    return (str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+    return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
 function escAttr(str) {
-    return (str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    return (str||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 </script>
 {% endblock %}

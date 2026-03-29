@@ -33,10 +33,15 @@
 .hp-count{font-size:13px;color:var(--ink-m);font-weight:500}
 .hp-wklbl{font-size:11.5px;color:var(--ink-f);font-weight:500;font-family:'Geist Mono',monospace;letter-spacing:.04em}
 .hp-acts{display:flex;align-items:center;gap:8px}
-.btn-arc{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--r-md);font-size:13px;font-weight:500;color:var(--ink-m);background:var(--surf-2);border:1px solid var(--bdr);text-decoration:none;transition:all .15s;white-space:nowrap}
-.btn-arc:hover{background:var(--surf-3);color:var(--ink-2);border-color:var(--bdr-2)}
-.btn-new{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--r-md);background:var(--ink);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;transition:background .15s,transform .1s,box-shadow .15s;box-shadow:var(--sh-sm);letter-spacing:.01em;white-space:nowrap}
-.btn-new:hover{background:var(--ink-2);transform:translateY(-1px);box-shadow:var(--sh-md)}
+
+/* archive link — matches Notes "Archived" link */
+.btn-arc{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--ink-f);text-decoration:none;transition:color .15s;white-space:nowrap}
+.btn-arc:hover{color:var(--ink-2)}
+.btn-arc svg{flex-shrink:0}
+
+/* new habit button — matches Notes "+ New Note" */
+.btn-new{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--r-xl);font-size:13px;font-weight:600;color:#fff;border:none;cursor:pointer;font-family:'Geist',sans-serif;background:linear-gradient(135deg,#1e293b,#334155);transition:opacity .15s,transform .1s,box-shadow .15s;white-space:nowrap}
+.btn-new:hover{opacity:.9;transform:translateY(-1px);box-shadow:var(--sh-md)}
 .btn-new:active{transform:none}
 
 /* card */
@@ -60,12 +65,14 @@
 .hp-ico{width:34px;height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:var(--surf-3);border:1px solid var(--bdr)}
 .hp-ni{min-width:0}
 .hp-nm{font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* streak — use SVG flame icon inline */
 .hp-sm{font-size:11px;color:var(--ink-f);margin-top:2px;display:flex;align-items:center;gap:3px;font-family:'Geist Mono',monospace}
+.hp-sm svg{flex-shrink:0}
 
 /* toggle */
 .hp-dc{display:flex;align-items:center;justify-content:center;padding:8px 0}
 .hp-fd{width:26px;height:26px;border-radius:50%;border:2px dashed var(--bdr);opacity:.45}
-.hp-ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--bdr-2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;transition:all .14s ease;padding:0;outline:none}
+.hp-ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--bdr-2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:transparent;transition:all .14s ease;padding:0;outline:none}
 .hp-ck:hover:not(:disabled){border-color:var(--ink-m);color:var(--ink-f)}
 .hp-ck.done{border-color:transparent!important;color:#fff}
 .hp-ck:disabled{opacity:.5;cursor:default}
@@ -76,31 +83,35 @@
 .hp-hc{width:13px;height:13px;border-radius:3px;cursor:default;transition:transform .1s}
 .hp-hc:hover{transform:scale(1.35);position:relative;z-index:1}
 .hp-pills{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-left:auto}
-.pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;font-family:'Geist',sans-serif}
+.pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;font-family:'Geist',sans-serif;display:inline-flex;align-items:center;gap:4px}
 .p-rate{background:#eff6ff;color:#2563eb}
 .p-str{background:#fffbeb;color:#92400e}
 .p-tot{background:var(--surf-3);color:var(--ink-m);font-weight:500}
-.hp-ra{display:flex;align-items:center;gap:1px}
-.hp-rb{width:28px;height:28px;border-radius:var(--r-sm);border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink-m);text-decoration:none;transition:background .12s,color .12s;padding:0;line-height:1;font-family:'Geist',sans-serif}
+
+/* row actions — icon buttons matching Notes card buttons */
+.hp-ra{display:flex;align-items:center;gap:2px}
+.hp-rb{width:28px;height:28px;border-radius:var(--r-sm);border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-f);text-decoration:none;transition:background .12s,color .12s;padding:0;line-height:1;font-family:'Geist',sans-serif}
 .hp-rb:hover{background:var(--surf-3);color:var(--ink)}
+.hp-rb.archive:hover{background:#fef3c7;color:#92400e}
 .hp-rb.del:hover{background:#fef2f2;color:var(--danger)}
 
 /* empty */
 .hp-empty{background:var(--surf);border-radius:var(--r-xl);border:1px solid var(--bdr);box-shadow:var(--sh-sm);text-align:center;padding:80px 24px}
-.hp-ei{font-size:40px;display:block;margin-bottom:14px}
+.hp-ei{display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:var(--ink-f)}
 .hp-et{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:6px}
 .hp-es{font-size:13px;color:var(--ink-m);margin-bottom:24px}
 
-/* modal */
-.hp-mwrap{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(13,17,23,.5);backdrop-filter:blur(8px)}
+/* modal — matches Notes modal style */
+.hp-mwrap{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.4);backdrop-filter:blur(8px)}
 .hp-mwrap.open{display:flex}
 .hp-mbg{position:absolute;inset:0;cursor:pointer}
 .hp-m{position:relative;width:100%;max-width:460px;background:var(--surf);border-radius:var(--r-xl);box-shadow:var(--sh-lg);overflow:hidden;animation:mPop .22s cubic-bezier(.34,1.56,.64,1)}
 @keyframes mPop{from{opacity:0;transform:scale(.93) translateY(14px)}to{opacity:1;transform:none}}
 .hp-mh{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between}
 .hp-mt{font-size:16px;font-weight:800;color:var(--ink)}
-.hp-mc{width:30px;height:30px;border-radius:var(--r-sm);border:1px solid var(--bdr);background:var(--surf-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink-m);transition:background .12s,color .12s;padding:0}
-.hp-mc:hover{background:var(--surf-3);color:var(--ink)}
+/* close button matches Notes ✕ style */
+.hp-mc{width:28px;height:28px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:400;color:var(--ink-f);transition:color .12s;padding:0;line-height:1}
+.hp-mc:hover{color:var(--ink)}
 .hp-mb{padding:20px 24px 24px}
 
 /* form fields */
@@ -108,16 +119,17 @@
 .ff label{display:block;font-size:10.5px;font-weight:700;color:var(--ink-m);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
 .ff label .opt{text-transform:none;font-weight:400;font-size:10.5px;color:var(--ink-f);letter-spacing:0}
 .ff-g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.ff input,.ff textarea,.ff select{width:100%;border:1.5px solid var(--bdr);border-radius:var(--r-sm);padding:9px 12px;font-size:13.5px;font-family:'Geist',sans-serif;color:var(--ink);background:var(--surf);transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none}
-.ff input:focus,.ff textarea:focus,.ff select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+.ff input,.ff textarea,.ff select{width:100%;border:1px solid var(--bdr);border-radius:var(--r-xl);padding:8px 12px;font-size:13.5px;font-family:'Geist',sans-serif;color:var(--ink);background:var(--surf);transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none}
+.ff input:focus,.ff textarea:focus,.ff select:focus{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.2)}
 .ff textarea{resize:none}
 .ff select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;cursor:pointer}
 .ff-e{font-size:12px;color:var(--danger);margin-top:4px}
 .hp-mf{display:flex;gap:10px;margin-top:20px}
-.btn-ca{flex:1;padding:11px;border-radius:var(--r-md);border:1.5px solid var(--bdr);background:var(--surf-2);font-size:13.5px;font-weight:600;color:var(--ink-m);cursor:pointer;font-family:'Geist',sans-serif;transition:background .12s,color .12s}
+/* modal buttons match Notes modal buttons */
+.btn-ca{flex:1;padding:10px;border-radius:var(--r-xl);border:1px solid var(--bdr);background:var(--surf);font-size:13.5px;font-weight:600;color:var(--ink-m);cursor:pointer;font-family:'Geist',sans-serif;transition:background .12s,color .12s}
 .btn-ca:hover{background:var(--surf-3);color:var(--ink)}
-.btn-su{flex:1;padding:11px;border-radius:var(--r-md);border:none;background:var(--ink);font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;font-family:'Geist',sans-serif;letter-spacing:.02em;transition:background .12s,transform .1s,box-shadow .15s}
-.btn-su:hover{background:var(--ink-2);transform:translateY(-1px);box-shadow:var(--sh-md)}
+.btn-su{flex:1;padding:10px;border-radius:var(--r-xl);border:none;background:var(--ink-2);font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;font-family:'Geist',sans-serif;letter-spacing:.02em;transition:background .12s,transform .1s}
+.btn-su:hover{background:#1e293b;transform:translateY(-1px)}
 .btn-su:active{transform:none}
 
 /* tooltip */
@@ -129,7 +141,7 @@
   .hp-dh{grid-template-columns:minmax(100px,1.4fr) repeat(7,34px);padding:0 10px;gap:1px}
   .hp-rt{grid-template-columns:minmax(100px,1.4fr) repeat(7,34px);padding:0 10px;gap:1px}
   .hp-sr{padding:0 10px 12px;gap:6px}
-  .hp-ck,.hp-fd{width:23px;height:23px;font-size:10px}
+  .hp-ck,.hp-fd{width:23px;height:23px}
   .hp-hm{max-width:140px}
   .hp-hc{width:10px;height:10px}
   .hp-ico{width:28px;height:28px;font-size:14px}
@@ -143,11 +155,55 @@
 }
 </style>
 
+<!-- SVG icon sprite -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <!-- check / tick -->
+  <symbol id="ico-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </symbol>
+  <!-- flame / streak -->
+  <symbol id="ico-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2c0 6-6 8-6 14a6 6 0 0 0 12 0c0-6-4-8-6-14z"/>
+    <path d="M12 18a2 2 0 0 1-2-2c0-2 2-3 2-5 0 2 2 3 2 5a2 2 0 0 1-2 2z"/>
+  </symbol>
+  <!-- archive box -->
+  <symbol id="ico-archive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="21 8 21 21 3 21 3 8"/>
+    <rect x="1" y="3" width="22" height="5"/>
+    <line x1="10" y1="12" x2="14" y2="12"/>
+  </symbol>
+  <!-- pencil / edit -->
+  <symbol id="ico-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </symbol>
+  <!-- trash / delete -->
+  <symbol id="ico-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6l-1 14H6L5 6"/>
+    <path d="M10 11v6M14 11v6"/>
+    <path d="M9 6V4h6v2"/>
+  </symbol>
+  <!-- plus -->
+  <symbol id="ico-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </symbol>
+  <!-- trophy / empty state -->
+  <symbol id="ico-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 9H3V4h3M18 9h3V4h-3"/>
+    <path d="M6 4h12v7a6 6 0 0 1-12 0V4z"/>
+    <path d="M12 17v4M8 21h8"/>
+  </symbol>
+</svg>
+
 <div class="hp">
 
   {% for msg in messages %}
   <div class="hp-alert {% if msg.tags == 'success' %}hp-ok{% else %}hp-err{% endif %}">
-    <span>{% if msg.tags == 'success' %}✓{% else %}⚠{% endif %}</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
+      {% if msg.tags == 'success' %}<polyline points="20 6 9 17 4 12"/>{% else %}<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>{% endif %}
+    </svg>
     {{ msg }}
   </div>
   {% endfor %}
@@ -158,8 +214,14 @@
       {% if habit_data %}<span class="hp-wklbl">{{ week_dates.0|date:"M j" }} – {{ week_dates.6|date:"M j, Y" }}</span>{% endif %}
     </div>
     <div class="hp-acts">
-      <a href="{% url 'habits_archived' %}" class="btn-arc">📦 <span>Archive</span></a>
-      <button onclick="openM()" class="btn-new"><span style="font-size:16px;line-height:1;margin-top:-1px">+</span> New Habit</button>
+      <a href="{% url 'habits_archived' %}" class="btn-arc">
+        <svg width="13" height="13"><use href="#ico-archive"/></svg>
+        <span>Archived</span>
+      </a>
+      <button onclick="openM()" class="btn-new">
+        <svg width="13" height="13"><use href="#ico-plus"/></svg>
+        New Habit
+      </button>
     </div>
   </div>
 
@@ -182,7 +244,10 @@
           <div class="hp-ico">{{ h.icon|default:"◆" }}</div>
           <div class="hp-ni">
             <div class="hp-nm" title="{{ h.name }}">{{ h.name }}</div>
-            <div class="hp-sm">🔥 <span id="sm-{{ h.pk }}">{{ hd.current_streak }}d</span></div>
+            <div class="hp-sm">
+              <svg width="11" height="11"><use href="#ico-flame"/></svg>
+              <span id="sm-{{ h.pk }}">{{ hd.current_streak }}d</span>
+            </div>
           </div>
         </div>
         {% for day in hd.week %}
@@ -194,7 +259,9 @@
                   data-color="{{ h.color }}" data-done="{{ day.done|yesno:'1,0' }}"
                   data-tip="{{ day.date|date:'D, M j' }}"
                   class="hp-ck {% if day.done %}done{% endif %}"
-                  aria-label="{{ day.date|date:'D M j' }}: {% if day.done %}done{% else %}not done{% endif %}">✓</button>
+                  aria-label="{{ day.date|date:'D M j' }}: {% if day.done %}done{% else %}not done{% endif %}">
+            <svg width="11" height="11"><use href="#ico-check"/></svg>
+          </button>
           {% endif %}
         </div>
         {% endfor %}
@@ -207,18 +274,29 @@
           {% endfor %}
         </div>
         <div class="hp-pills">
-          <span class="pill p-rate"  id="rate-{{ h.pk }}">{{ hd.completion_rate }}%</span>
-          <span class="pill p-str"   id="streak-{{ h.pk }}">🔥 {{ hd.current_streak }}</span>
-          <span class="pill p-tot"   id="total-{{ h.pk }}">{{ hd.total }} done</span>
+          <span class="pill p-rate" id="rate-{{ h.pk }}">{{ hd.completion_rate }}%</span>
+          <span class="pill p-str" id="streak-{{ h.pk }}">
+            <svg width="10" height="10"><use href="#ico-flame"/></svg>
+            {{ hd.current_streak }}
+          </span>
+          <span class="pill p-tot" id="total-{{ h.pk }}">{{ hd.total }} done</span>
         </div>
         <div class="hp-ra">
-          <a href="{% url 'habit_edit' h.pk %}" class="hp-rb" title="Edit">✏️</a>
+          <a href="{% url 'habit_edit' h.pk %}" class="hp-rb" title="Edit">
+            <svg width="13" height="13"><use href="#ico-edit"/></svg>
+          </a>
           <form method="POST" action="{% url 'habit_archive' h.pk %}" style="display:inline;margin:0">
-            {% csrf_token %}<button type="submit" class="hp-rb" title="Archive">📦</button>
+            {% csrf_token %}
+            <button type="submit" class="hp-rb archive" title="Archive">
+              <svg width="13" height="13"><use href="#ico-archive"/></svg>
+            </button>
           </form>
           <form method="POST" action="{% url 'habit_delete' h.pk %}" style="display:inline;margin:0"
                 onsubmit="return confirm('Delete «{{ h.name }}» and all its logs?')">
-            {% csrf_token %}<button type="submit" class="hp-rb del" title="Delete">🗑</button>
+            {% csrf_token %}
+            <button type="submit" class="hp-rb del" title="Delete">
+              <svg width="13" height="13"><use href="#ico-trash"/></svg>
+            </button>
           </form>
         </div>
       </div>
@@ -228,10 +306,15 @@
 
   {% else %}
   <div class="hp-empty">
-    <span class="hp-ei">🏆</span>
+    <div class="hp-ei">
+      <svg width="40" height="40"><use href="#ico-trophy"/></svg>
+    </div>
     <p class="hp-et">No habits yet</p>
     <p class="hp-es">Start building a streak today — one habit at a time.</p>
-    <button onclick="openM()" class="btn-new">+ New Habit</button>
+    <button onclick="openM()" class="btn-new">
+      <svg width="13" height="13"><use href="#ico-plus"/></svg>
+      New Habit
+    </button>
   </div>
   {% endif %}
 
@@ -297,7 +380,7 @@ async function toggleHabit(id,ds,btn){
       applyBtn(btn,d.done,btn.dataset.color);btn.dataset.done=d.done?'1':'0';
       const g=x=>document.getElementById(`${x}-${id}`);
       const sm=document.getElementById(`sm-${id}`);
-      if(g('streak'))g('streak').textContent=`🔥 ${d.current_streak}`;
+      if(g('streak'))g('streak').querySelector('span') ? g('streak').querySelector('span').textContent=d.current_streak : g('streak').append(d.current_streak);
       if(g('total'))g('total').textContent=`${d.total} done`;
       if(g('rate'))g('rate').textContent=`${d.rate}%`;
       if(sm)sm.textContent=`${d.current_streak}d`;
