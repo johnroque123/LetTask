@@ -14,7 +14,6 @@ from django.views.decorators.cache import never_cache
 # ─── Dashboard ────────────────────────────────────────────────────────────────
 
 # Add these imports at the top of todo/views.py
-from datetime import date, timedelta
 @never_cache
 @login_required
 def dashboard(request):
@@ -84,8 +83,8 @@ def dashboard(request):
     total_notes  = 0
     try:
         from notes.models import Note
-        recent_notes = list(Note.objects.filter(user=request.user).order_by('-is_pinned', '-updated_at')[:4])
-        total_notes  = Note.objects.filter(user=request.user).count()
+        recent_notes = list(Note.objects.filter(user=request.user, is_archived=False).order_by('-is_pinned', '-updated_at')[:4])
+        total_notes  = Note.objects.filter(user=request.user, is_archived=False).count()
     except Exception:
         pass
 
