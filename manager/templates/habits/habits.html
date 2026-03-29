@@ -5,341 +5,304 @@
 {% block page_subtitle %}Build streaks, track progress{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto space-y-5">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap');
+:root{
+  --ink:#0d1117;--ink-2:#1e293b;--ink-m:#64748b;--ink-f:#94a3b8;
+  --surf:#fff;--surf-2:#f8fafc;--surf-3:#f1f5f9;
+  --bdr:#e2e8f0;--bdr-2:#cbd5e1;
+  --acc:#6366f1;--acc-bg:#eef2ff;
+  --danger:#ef4444;
+  --r-sm:8px;--r-md:12px;--r-lg:18px;--r-xl:24px;
+  --sh-sm:0 1px 4px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+  --sh-lg:0 12px 40px rgba(0,0,0,.12),0 4px 12px rgba(0,0,0,.06);
+}
+.hp,x.hp *{font-family:'Geist',sans-serif;box-sizing:border-box}
+.hp{max-width:880px;margin:0 auto;padding:0 16px 96px}
 
-    <!-- Messages -->
-    {% for message in messages %}
-    <div class="px-4 py-3 rounded-xl text-sm font-medium
-        {% if message.tags == 'success' %}bg-green-50 border border-green-200 text-green-700
-        {% else %}bg-red-50 border border-red-200 text-red-600{% endif %}">
-        {{ message }}
+/* alerts */
+.hp-alert{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:var(--r-md);font-size:13px;font-weight:500;margin-bottom:10px;animation:alertIn .2s ease}
+@keyframes alertIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.hp-ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.hp-err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+
+/* topbar */
+.hp-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.hp-topbar-l{display:flex;align-items:center;gap:16px}
+.hp-count{font-size:13px;color:var(--ink-m);font-weight:500}
+.hp-wklbl{font-size:11.5px;color:var(--ink-f);font-weight:500;font-family:'Geist Mono',monospace;letter-spacing:.04em}
+.hp-acts{display:flex;align-items:center;gap:8px}
+.btn-arc{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--r-md);font-size:13px;font-weight:500;color:var(--ink-m);background:var(--surf-2);border:1px solid var(--bdr);text-decoration:none;transition:all .15s;white-space:nowrap}
+.btn-arc:hover{background:var(--surf-3);color:var(--ink-2);border-color:var(--bdr-2)}
+.btn-new{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--r-md);background:var(--ink);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;transition:background .15s,transform .1s,box-shadow .15s;box-shadow:var(--sh-sm);letter-spacing:.01em;white-space:nowrap}
+.btn-new:hover{background:var(--ink-2);transform:translateY(-1px);box-shadow:var(--sh-md)}
+.btn-new:active{transform:none}
+
+/* card */
+.hp-card{background:var(--surf);border-radius:var(--r-xl);border:1px solid var(--bdr);box-shadow:var(--sh-sm);overflow:hidden;margin-bottom:14px}
+
+/* day header */
+.hp-dh{display:grid;grid-template-columns:minmax(148px,1.7fr) repeat(7,minmax(36px,1fr));border-bottom:1px solid var(--bdr);background:var(--surf-2);padding:0 14px;gap:2px}
+.hp-dhc{display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:3px}
+.hp-dl{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-f);text-transform:uppercase}
+.hp-dn{font-size:14px;font-weight:700;color:var(--ink-2);line-height:1}
+.hp-dn.today{color:var(--acc);background:var(--acc-bg);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
+
+/* habit row */
+.hp-row{border-bottom:1px solid var(--surf-3);transition:background .12s}
+.hp-row:last-child{border-bottom:none}
+.hp-row:hover{background:#fafbfc}
+.hp-rt{display:grid;grid-template-columns:minmax(148px,1.7fr) repeat(7,minmax(36px,1fr));align-items:center;padding:0 14px;gap:2px}
+
+/* name */
+.hp-nc{display:flex;align-items:center;gap:10px;padding:13px 0;min-width:0}
+.hp-ico{width:34px;height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;background:var(--surf-3);border:1px solid var(--bdr)}
+.hp-ni{min-width:0}
+.hp-nm{font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hp-sm{font-size:11px;color:var(--ink-f);margin-top:2px;display:flex;align-items:center;gap:3px;font-family:'Geist Mono',monospace}
+
+/* toggle */
+.hp-dc{display:flex;align-items:center;justify-content:center;padding:8px 0}
+.hp-fd{width:26px;height:26px;border-radius:50%;border:2px dashed var(--bdr);opacity:.45}
+.hp-ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--bdr-2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;transition:all .14s ease;padding:0;outline:none}
+.hp-ck:hover:not(:disabled){border-color:var(--ink-m);color:var(--ink-f)}
+.hp-ck.done{border-color:transparent!important;color:#fff}
+.hp-ck:disabled{opacity:.5;cursor:default}
+
+/* stats row */
+.hp-sr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:2px 14px 13px}
+.hp-hm{display:flex;gap:2px;flex-wrap:wrap;max-width:196px;flex-shrink:0}
+.hp-hc{width:13px;height:13px;border-radius:3px;cursor:default;transition:transform .1s}
+.hp-hc:hover{transform:scale(1.35);position:relative;z-index:1}
+.hp-pills{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-left:auto}
+.pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap;font-family:'Geist',sans-serif}
+.p-rate{background:#eff6ff;color:#2563eb}
+.p-str{background:#fffbeb;color:#92400e}
+.p-tot{background:var(--surf-3);color:var(--ink-m);font-weight:500}
+.hp-ra{display:flex;align-items:center;gap:1px}
+.hp-rb{width:28px;height:28px;border-radius:var(--r-sm);border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--ink-m);text-decoration:none;transition:background .12s,color .12s;padding:0;line-height:1;font-family:'Geist',sans-serif}
+.hp-rb:hover{background:var(--surf-3);color:var(--ink)}
+.hp-rb.del:hover{background:#fef2f2;color:var(--danger)}
+
+/* empty */
+.hp-empty{background:var(--surf);border-radius:var(--r-xl);border:1px solid var(--bdr);box-shadow:var(--sh-sm);text-align:center;padding:80px 24px}
+.hp-ei{font-size:40px;display:block;margin-bottom:14px}
+.hp-et{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.hp-es{font-size:13px;color:var(--ink-m);margin-bottom:24px}
+
+/* modal */
+.hp-mwrap{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(13,17,23,.5);backdrop-filter:blur(8px)}
+.hp-mwrap.open{display:flex}
+.hp-mbg{position:absolute;inset:0;cursor:pointer}
+.hp-m{position:relative;width:100%;max-width:460px;background:var(--surf);border-radius:var(--r-xl);box-shadow:var(--sh-lg);overflow:hidden;animation:mPop .22s cubic-bezier(.34,1.56,.64,1)}
+@keyframes mPop{from{opacity:0;transform:scale(.93) translateY(14px)}to{opacity:1;transform:none}}
+.hp-mh{padding:22px 24px 0;display:flex;align-items:center;justify-content:space-between}
+.hp-mt{font-size:16px;font-weight:800;color:var(--ink)}
+.hp-mc{width:30px;height:30px;border-radius:var(--r-sm);border:1px solid var(--bdr);background:var(--surf-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink-m);transition:background .12s,color .12s;padding:0}
+.hp-mc:hover{background:var(--surf-3);color:var(--ink)}
+.hp-mb{padding:20px 24px 24px}
+
+/* form fields */
+.ff{margin-bottom:15px}
+.ff label{display:block;font-size:10.5px;font-weight:700;color:var(--ink-m);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.ff label .opt{text-transform:none;font-weight:400;font-size:10.5px;color:var(--ink-f);letter-spacing:0}
+.ff-g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ff input,.ff textarea,.ff select{width:100%;border:1.5px solid var(--bdr);border-radius:var(--r-sm);padding:9px 12px;font-size:13.5px;font-family:'Geist',sans-serif;color:var(--ink);background:var(--surf);transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none}
+.ff input:focus,.ff textarea:focus,.ff select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+.ff textarea{resize:none}
+.ff select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:34px;cursor:pointer}
+.ff-e{font-size:12px;color:var(--danger);margin-top:4px}
+.hp-mf{display:flex;gap:10px;margin-top:20px}
+.btn-ca{flex:1;padding:11px;border-radius:var(--r-md);border:1.5px solid var(--bdr);background:var(--surf-2);font-size:13.5px;font-weight:600;color:var(--ink-m);cursor:pointer;font-family:'Geist',sans-serif;transition:background .12s,color .12s}
+.btn-ca:hover{background:var(--surf-3);color:var(--ink)}
+.btn-su{flex:1;padding:11px;border-radius:var(--r-md);border:none;background:var(--ink);font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;font-family:'Geist',sans-serif;letter-spacing:.02em;transition:background .12s,transform .1s,box-shadow .15s}
+.btn-su:hover{background:var(--ink-2);transform:translateY(-1px);box-shadow:var(--sh-md)}
+.btn-su:active{transform:none}
+
+/* tooltip */
+[data-tip]{position:relative}
+[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:11px;padding:4px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:99;font-family:'Geist Mono',monospace}
+
+/* responsive */
+@media(max-width:640px){
+  .hp-dh{grid-template-columns:minmax(100px,1.4fr) repeat(7,34px);padding:0 10px;gap:1px}
+  .hp-rt{grid-template-columns:minmax(100px,1.4fr) repeat(7,34px);padding:0 10px;gap:1px}
+  .hp-sr{padding:0 10px 12px;gap:6px}
+  .hp-ck,.hp-fd{width:23px;height:23px;font-size:10px}
+  .hp-hm{max-width:140px}
+  .hp-hc{width:10px;height:10px}
+  .hp-ico{width:28px;height:28px;font-size:14px}
+  .btn-arc span{display:none}
+}
+@media(max-width:430px){
+  .hp-dh{grid-template-columns:minmax(80px,1fr) repeat(7,30px);padding:0 8px}
+  .hp-rt{grid-template-columns:minmax(80px,1fr) repeat(7,30px);padding:0 8px}
+  .hp-hm{display:none}
+  .hp-ck,.hp-fd{width:20px;height:20px}
+}
+</style>
+
+<div class="hp">
+
+  {% for msg in messages %}
+  <div class="hp-alert {% if msg.tags == 'success' %}hp-ok{% else %}hp-err{% endif %}">
+    <span>{% if msg.tags == 'success' %}✓{% else %}⚠{% endif %}</span>
+    {{ msg }}
+  </div>
+  {% endfor %}
+
+  <div class="hp-topbar">
+    <div class="hp-topbar-l">
+      <span class="hp-count">{{ total_habits }} habit{{ total_habits|pluralize }}</span>
+      {% if habit_data %}<span class="hp-wklbl">{{ week_dates.0|date:"M j" }} – {{ week_dates.6|date:"M j, Y" }}</span>{% endif %}
     </div>
-    {% endfor %}
+    <div class="hp-acts">
+      <a href="{% url 'habits_archived' %}" class="btn-arc">📦 <span>Archive</span></a>
+      <button onclick="openM()" class="btn-new"><span style="font-size:16px;line-height:1;margin-top:-1px">+</span> New Habit</button>
+    </div>
+  </div>
 
-    <!-- Top bar -->
-    <div class="flex items-center justify-between gap-3 flex-wrap">
-        <span class="text-xs text-slate-400 font-medium">
-            {{ total_habits }} habit{{ total_habits|pluralize }}
-        </span>
-        <button onclick="openCreateModal()"
-                class="flex items-center gap-2 px-4 py-2.5 text-white text-sm font-semibold rounded-2xl transition shrink-0"
-                style="background: linear-gradient(135deg, #1e293b, #334155);">
-            + New Habit
-        </button>
+  {% if habit_data %}
+  <div class="hp-card">
+    <div class="hp-dh">
+      <div></div>
+      {% for d in week_dates %}
+      <div class="hp-dhc">
+        <span class="hp-dl">{{ d|date:"D"|slice:":1" }}</span>
+        <span class="hp-dn {% if d == today %}today{% endif %}">{{ d|date:"j" }}</span>
+      </div>
+      {% endfor %}
     </div>
 
-    {% if habit_data %}
-
-    <!-- Week grid -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-
-        <!-- Day header -->
-        <div class="grid grid-cols-8 border-b border-slate-100">
-            <div class="px-4 py-3 col-span-1"></div>
-            {% for d in week_dates %}
-            <div class="py-3 text-center">
-                <p class="text-xs font-bold text-slate-500 uppercase">
-                    {{ d|date:"D"|slice:":1" }}
-                </p>
-                <p class="text-sm font-bold mt-0.5
-                    {% if d == today %}text-blue-600{% else %}text-slate-700{% endif %}">
-                    {{ d|date:"j" }}
-                </p>
-            </div>
-            {% endfor %}
+    {% for hd in habit_data %}{% with h=hd.habit %}
+    <div class="hp-row">
+      <div class="hp-rt">
+        <div class="hp-nc">
+          <div class="hp-ico">{{ h.icon|default:"◆" }}</div>
+          <div class="hp-ni">
+            <div class="hp-nm" title="{{ h.name }}">{{ h.name }}</div>
+            <div class="hp-sm">🔥 <span id="sm-{{ h.pk }}">{{ hd.current_streak }}d</span></div>
+          </div>
         </div>
-
-        <!-- One row per habit -->
-        {% for hd in habit_data %}
-        {% with habit=hd.habit %}
-        <div class="border-b border-slate-50 last:border-0">
-
-            <!-- Checkboxes row -->
-            <div class="grid grid-cols-8 items-center">
-
-                <!-- Name cell -->
-                <div class="px-4 py-3 col-span-1 min-w-0">
-                    <div class="flex items-center gap-2">
-                        {% if habit.icon %}
-                        <span class="text-base leading-none shrink-0">{{ habit.icon }}</span>
-                        {% endif %}
-                        <div class="min-w-0">
-                            <p class="text-sm font-semibold text-slate-800 truncate">{{ habit.name }}</p>
-                            <p class="text-xs text-slate-400 mt-0.5">🔥 {{ hd.current_streak }}d</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Day buttons -->
-                {% for day in hd.week %}
-                <div class="flex items-center justify-center py-3">
-                    {% if day.is_future %}
-                    <div class="w-8 h-8 rounded-full border-2 border-dashed border-slate-200"></div>
-                    {% else %}
-                    <button onclick="toggleHabit({{ habit.pk }}, '{{ day.date|date:'Y-m-d' }}', this)"
-                            data-habit="{{ habit.pk }}"
-                            data-date="{{ day.date|date:'Y-m-d' }}"
-                            data-color="{{ habit.color }}"
-                            data-done="{{ day.done|yesno:'1,0' }}"
-                            class="habit-check w-8 h-8 rounded-full border-2 transition-all duration-150 flex items-center justify-center text-sm">
-                        ✓
-                    </button>
-                    {% endif %}
-                </div>
-                {% endfor %}
-
-            </div>
-
-            <!-- Heatmap + stats row -->
-            <div class="px-4 pb-4">
-                <div class="flex items-center gap-4 flex-wrap">
-
-                    <!-- 12-week heatmap -->
-                    <div class="flex gap-0.5 flex-wrap" style="max-width:196px;">
-                        {% for cell in hd.heatmap %}
-                        <div class="heatmap-cell w-3.5 h-3.5 rounded-sm transition-colors"
-                             title="{{ cell.label }}"
-                             data-done="{{ cell.done|yesno:'1,0' }}"
-                             data-color="{{ habit.color }}">
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    <!-- Stats + actions -->
-                    <div class="flex items-center gap-2 flex-wrap ml-auto">
-                        <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium"
-                              id="rate-{{ habit.pk }}">
-                            {{ hd.completion_rate }}%
-                        </span>
-                        <span class="text-xs bg-amber-50 text-amber-600 px-2.5 py-1 rounded-lg font-medium"
-                              id="streak-{{ habit.pk }}">
-                            🔥 {{ hd.current_streak }} streak
-                        </span>
-                        <span class="text-xs bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg"
-                              id="total-{{ habit.pk }}">
-                            {{ hd.total }} done
-                        </span>
-                        <a href="{% url 'habit_edit' habit.pk %}"
-                           class="text-xs text-slate-400 hover:text-blue-500 px-2 py-1 rounded-lg hover:bg-blue-50 transition"
-                           title="Edit">✏️</a>
-                        <form method="POST" action="{% url 'habit_archive' habit.pk %}" class="inline">
-                            {% csrf_token %}
-                            <button type="submit"
-                                    class="text-xs text-slate-400 hover:text-amber-500 px-2 py-1 rounded-lg hover:bg-amber-50 transition"
-                                    title="Archive">📦</button>
-                        </form>
-                        <form method="POST" action="{% url 'habit_delete' habit.pk %}" class="inline"
-                              onsubmit="return confirm('Delete habit and all its logs?')">
-                            {% csrf_token %}
-                            <button type="submit"
-                                    class="text-xs text-slate-400 hover:text-red-500 px-2 py-1 rounded-lg hover:bg-red-50 transition"
-                                    title="Delete">🗑</button>
-                        </form>
-                    </div>
-
-                </div>
-            </div>
-
+        {% for day in hd.week %}
+        <div class="hp-dc">
+          {% if day.is_future %}
+          <div class="hp-fd"></div>
+          {% else %}
+          <button onclick="toggleHabit({{ h.pk }},'{{ day.date|date:'Y-m-d' }}',this)"
+                  data-color="{{ h.color }}" data-done="{{ day.done|yesno:'1,0' }}"
+                  data-tip="{{ day.date|date:'D, M j' }}"
+                  class="hp-ck {% if day.done %}done{% endif %}"
+                  aria-label="{{ day.date|date:'D M j' }}: {% if day.done %}done{% else %}not done{% endif %}">✓</button>
+          {% endif %}
         </div>
-        {% endwith %}
         {% endfor %}
+      </div>
 
-    </div>
-
-    {% else %}
-    <!-- Empty state -->
-    <div class="bg-white rounded-2xl border border-slate-200 text-center py-20">
-        <div class="text-4xl mb-3">🏆</div>
-        <p class="text-sm font-semibold text-slate-600">No habits yet.</p>
-        <p class="text-xs text-slate-400 mt-1">Start building a streak today.</p>
-        <button onclick="openCreateModal()"
-                class="inline-block mt-4 px-5 py-2.5 text-white text-sm font-semibold rounded-xl transition"
-                style="background: linear-gradient(135deg, #1e293b, #334155);">
-            + New Habit
-        </button>
-    </div>
-    {% endif %}
-
-</div>
-
-
-<!-- ── Create Modal ───────────────────────────────────────────────── -->
-<div id="habit-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal()"></div>
-    <div class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden z-10">
-
-        <div class="px-6 pt-6 pb-2 flex items-center justify-between">
-            <h3 class="text-base font-bold text-slate-800">New Habit</h3>
-            <button onclick="closeModal()"
-                    class="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+      <div class="hp-sr">
+        <div class="hp-hm">
+          {% for cell in hd.heatmap %}
+          <div class="hp-hc" data-tip="{{ cell.label }}" data-done="{{ cell.done|yesno:'1,0' }}" data-color="{{ h.color }}"></div>
+          {% endfor %}
         </div>
-
-        <form method="POST" action="{% url 'habit_create' %}" class="px-6 pb-6 pt-4 space-y-4">
-            {% csrf_token %}
-
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
-                    Name
-                </label>
-                {{ form.name }}
-                {% if form.name.errors %}
-                    <p class="text-xs text-red-500 mt-1">{{ form.name.errors.0 }}</p>
-                {% endif %}
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
-                    Description
-                    <span class="text-slate-400 normal-case font-normal">(optional)</span>
-                </label>
-                {{ form.description }}
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
-                        Frequency
-                    </label>
-                    {{ form.frequency }}
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
-                        Color
-                    </label>
-                    {{ form.color }}
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
-                        Icon
-                        <span class="text-slate-400 normal-case font-normal">(emoji)</span>
-                    </label>
-                    {{ form.icon }}
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wider">
-                        Target Days
-                    </label>
-                    {{ form.target_days }}
-                </div>
-            </div>
-
-            <div class="flex gap-3 pt-2">
-                <button type="button" onclick="closeModal()"
-                        class="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
-                    Cancel
-                </button>
-                <button type="submit"
-                        class="flex-1 py-2.5 rounded-xl text-white text-sm font-semibold transition"
-                        style="background: linear-gradient(135deg, #1e293b, #334155);">
-                    Create Habit
-                </button>
-            </div>
-        </form>
+        <div class="hp-pills">
+          <span class="pill p-rate"  id="rate-{{ h.pk }}">{{ hd.completion_rate }}%</span>
+          <span class="pill p-str"   id="streak-{{ h.pk }}">🔥 {{ hd.current_streak }}</span>
+          <span class="pill p-tot"   id="total-{{ h.pk }}">{{ hd.total }} done</span>
+        </div>
+        <div class="hp-ra">
+          <a href="{% url 'habit_edit' h.pk %}" class="hp-rb" title="Edit">✏️</a>
+          <form method="POST" action="{% url 'habit_archive' h.pk %}" style="display:inline;margin:0">
+            {% csrf_token %}<button type="submit" class="hp-rb" title="Archive">📦</button>
+          </form>
+          <form method="POST" action="{% url 'habit_delete' h.pk %}" style="display:inline;margin:0"
+                onsubmit="return confirm('Delete «{{ h.name }}» and all its logs?')">
+            {% csrf_token %}<button type="submit" class="hp-rb del" title="Delete">🗑</button>
+          </form>
+        </div>
+      </div>
     </div>
+    {% endwith %}{% endfor %}
+  </div>
+
+  {% else %}
+  <div class="hp-empty">
+    <span class="hp-ei">🏆</span>
+    <p class="hp-et">No habits yet</p>
+    <p class="hp-es">Start building a streak today — one habit at a time.</p>
+    <button onclick="openM()" class="btn-new">+ New Habit</button>
+  </div>
+  {% endif %}
+
 </div>
 
+<!-- Modal -->
+<div id="hp-modal" class="hp-mwrap" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="hp-mbg" onclick="closeM()"></div>
+  <div class="hp-m">
+    <div class="hp-mh">
+      <h3 class="hp-mt" id="modal-title">New Habit</h3>
+      <button onclick="closeM()" class="hp-mc" aria-label="Close">✕</button>
+    </div>
+    <div class="hp-mb">
+      <form method="POST" action="{% url 'habit_create' %}">
+        {% csrf_token %}
+        <div class="ff">
+          <label for="{{ form.name.id_for_label }}">Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}<p class="ff-e">{{ form.name.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="ff">
+          <label for="{{ form.description.id_for_label }}">Description <span class="opt">(optional)</span></label>
+          {{ form.description }}
+        </div>
+        <div class="ff ff-g">
+          <div class="ff" style="margin-bottom:0"><label for="{{ form.frequency.id_for_label }}">Frequency</label>{{ form.frequency }}</div>
+          <div class="ff" style="margin-bottom:0"><label for="{{ form.color.id_for_label }}">Color</label>{{ form.color }}</div>
+        </div>
+        <div class="ff ff-g" style="margin-top:15px">
+          <div class="ff" style="margin-bottom:0"><label for="{{ form.icon.id_for_label }}">Icon <span class="opt">(emoji)</span></label>{{ form.icon }}</div>
+          <div class="ff" style="margin-bottom:0"><label for="{{ form.target_days.id_for_label }}">Target Days</label>{{ form.target_days }}</div>
+        </div>
+        <div class="hp-mf">
+          <button type="button" onclick="closeM()" class="btn-ca">Cancel</button>
+          <button type="submit" class="btn-su">Create Habit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <script>
-const CSRF = '{{ csrf_token }}';
-
-const COLOR_MAP = {
-    blue:   '#3b82f6',
-    green:  '#22c55e',
-    purple: '#a855f7',
-    red:    '#ef4444',
-    amber:  '#f59e0b',
-    pink:   '#ec4899',
-};
-const COLOR_BG_MAP = {
-    blue:   'bg-blue-500',
-    green:  'bg-green-500',
-    purple: 'bg-purple-500',
-    red:    'bg-red-500',
-    amber:  'bg-amber-500',
-    pink:   'bg-pink-500',
-};
-const EMPTY_COLOR = '#f1f5f9';
-
-// ── Paint heatmap cells on load ───────────────────────────────────
-document.querySelectorAll('.heatmap-cell').forEach(cell => {
-    cell.style.backgroundColor = cell.dataset.done === '1'
-        ? (COLOR_MAP[cell.dataset.color] || COLOR_MAP.blue)
-        : EMPTY_COLOR;
-});
-
-// ── Paint habit-check buttons on load ────────────────────────────
-document.querySelectorAll('.habit-check').forEach(btn => {
-    applyButtonState(btn, btn.dataset.done === '1', btn.dataset.color);
-});
-
-function applyButtonState(btn, done, color) {
-    // Reset all classes first
-    btn.classList.remove(
-        'border-transparent', 'text-white',
-        'bg-blue-500', 'bg-green-500', 'bg-purple-500',
-        'bg-red-500', 'bg-amber-500', 'bg-pink-500',
-        'border-slate-300', 'hover:border-slate-400',
-        'text-transparent', 'hover:text-slate-300'
-    );
-    if (done) {
-        btn.classList.add('border-transparent', 'text-white', COLOR_BG_MAP[color] || 'bg-blue-500');
-    } else {
-        btn.classList.add(
-            'border-slate-300', 'hover:border-slate-400',
-            'text-transparent', 'hover:text-slate-300'
-        );
+const CSRF='{{ csrf_token }}';
+const COL={blue:'#3b82f6',green:'#22c55e',purple:'#a855f7',red:'#ef4444',amber:'#f59e0b',pink:'#ec4899',indigo:'#6366f1',teal:'#14b8a6'};
+const EMP='#e2e8f0';
+document.querySelectorAll('.hp-hc').forEach(c=>{c.style.backgroundColor=c.dataset.done==='1'?(COL[c.dataset.color]||COL.blue):EMP});
+document.querySelectorAll('.hp-ck').forEach(b=>applyBtn(b,b.dataset.done==='1',b.dataset.color));
+function applyBtn(b,done,color){
+  if(done){b.classList.add('done');b.style.backgroundColor=COL[color]||COL.blue;b.style.borderColor='transparent'}
+  else{b.classList.remove('done');b.style.backgroundColor='';b.style.borderColor=''}
+}
+function openM(){document.getElementById('hp-modal').classList.add('open');document.body.style.overflow='hidden'}
+function closeM(){document.getElementById('hp-modal').classList.remove('open');document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+async function toggleHabit(id,ds,btn){
+  btn.disabled=true;
+  const fd=new FormData();fd.append('date',ds);
+  try{
+    const r=await fetch(`/habits/${id}/toggle/`,{method:'POST',headers:{'X-CSRFToken':CSRF},body:fd});
+    const d=await r.json();
+    if(d.ok){
+      applyBtn(btn,d.done,btn.dataset.color);btn.dataset.done=d.done?'1':'0';
+      const g=x=>document.getElementById(`${x}-${id}`);
+      const sm=document.getElementById(`sm-${id}`);
+      if(g('streak'))g('streak').textContent=`🔥 ${d.current_streak}`;
+      if(g('total'))g('total').textContent=`${d.total} done`;
+      if(g('rate'))g('rate').textContent=`${d.rate}%`;
+      if(sm)sm.textContent=`${d.current_streak}d`;
     }
-}
-
-
-// ── Modal ─────────────────────────────────────────────────────────
-function openCreateModal() {
-    document.getElementById('habit-modal').classList.replace('hidden', 'flex');
-}
-function closeModal() {
-    document.getElementById('habit-modal').classList.replace('flex', 'hidden');
-}
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-
-// ── Toggle habit for a day ────────────────────────────────────────
-async function toggleHabit(habitId, dateStr, btn) {
-    btn.disabled = true;
-
-    const form = new FormData();
-    form.append('date', dateStr);
-
-    try {
-        const res  = await fetch(`/habits/${habitId}/toggle/`, {
-            method:  'POST',
-            headers: { 'X-CSRFToken': CSRF },
-            body:    form,
-        });
-        const data = await res.json();
-
-        if (data.ok) {
-            const color = btn.dataset.color;
-
-            // Update button state
-            applyButtonState(btn, data.done, color);
-            btn.dataset.done = data.done ? '1' : '0';
-
-            // Update stat pills
-            const streakEl = document.getElementById(`streak-${habitId}`);
-            const totalEl  = document.getElementById(`total-${habitId}`);
-            const rateEl   = document.getElementById(`rate-${habitId}`);
-            if (streakEl) streakEl.textContent = `🔥 ${data.current_streak} streak`;
-            if (totalEl)  totalEl.textContent  = `${data.total} done`;
-            if (rateEl)   rateEl.textContent   = `${data.rate}%`;
-        }
-    } catch (err) {
-        console.error('Toggle failed:', err);
-    } finally {
-        btn.disabled = false;
-    }
+  }catch(e){console.error(e)}finally{btn.disabled=false}
 }
 </script>
 {% endblock %}

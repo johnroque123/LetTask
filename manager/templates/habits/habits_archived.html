@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% block title %}Archived Habits – LetTask{% endblock %}
+{% block nav_habits %}active{% endblock %}
+{% block page_title %}Archive{% endblock %}
+{% block page_subtitle %}Retired habits & their history{% endblock %}
+
+{% block content %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap');
+:root{
+  --ink:#0d1117;--ink-2:#1e293b;--ink-m:#64748b;--ink-f:#94a3b8;
+  --surf:#fff;--surf-2:#f8fafc;--surf-3:#f1f5f9;
+  --bdr:#e2e8f0;--bdr-2:#cbd5e1;
+  --acc:#6366f1;--danger:#ef4444;--warn:#f59e0b;
+  --r-sm:8px;--r-md:12px;--r-lg:18px;--r-xl:24px;
+  --sh-sm:0 1px 4px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box}
+.ap{font-family:'Geist',sans-serif;max-width:660px;margin:0 auto;padding:0 16px 80px}
+
+/* alerts */
+.ap-alert{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:var(--r-md);font-size:13px;font-weight:500;margin-bottom:10px;animation:alertIn .2s ease}
+@keyframes alertIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.ap-ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.ap-err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b}
+
+/* topbar */
+.ap-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.ap-topbar-l{display:flex;align-items:center;gap:14px}
+.ap-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--ink-m);text-decoration:none;padding:7px 13px;border-radius:var(--r-md);background:var(--surf-2);border:1px solid var(--bdr);transition:all .15s}
+.ap-back:hover{background:var(--surf-3);color:var(--ink-2);border-color:var(--bdr-2)}
+.ap-title{font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.ap-count{font-size:12px;font-weight:500;color:var(--ink-f);font-family:'Geist Mono',monospace;background:var(--surf-3);padding:3px 10px;border-radius:999px;border:1px solid var(--bdr)}
+
+/* banner */
+.ap-banner{background:linear-gradient(135deg,#fefce8,#fff7ed);border:1px solid #fde68a;border-radius:var(--r-lg);padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:20px;font-size:13px;color:#78350f}
+.ap-banner-icon{font-size:20px;flex-shrink:0}
+
+/* habit card */
+.ap-card{background:var(--surf);border-radius:var(--r-xl);border:1px solid var(--bdr);box-shadow:var(--sh-sm);overflow:hidden;margin-bottom:12px;transition:box-shadow .15s;animation:rowIn .2s ease both}
+@keyframes rowIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.ap-card:hover{box-shadow:var(--sh-md)}
+
+.ap-card-inner{display:flex;align-items:center;gap:14px;padding:16px 20px}
+
+/* icon */
+.ap-ico{width:44px;height:44px;border-radius:var(--r-md);background:var(--surf-3);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;opacity:.7}
+
+/* info */
+.ap-info{flex:1;min-width:0}
+.ap-name{font-size:14px;font-weight:600;color:var(--ink-m);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px}
+.ap-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ap-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;font-family:'Geist',sans-serif;white-space:nowrap}
+.ap-pill-streak{background:#fffbeb;color:#92400e}
+.ap-pill-best{background:#eff6ff;color:#1d4ed8}
+.ap-pill-rate{background:#f0fdf4;color:#166534}
+.ap-pill-total{background:var(--surf-3);color:var(--ink-m);font-weight:500}
+.ap-pill-freq{background:var(--surf-3);color:var(--ink-f);font-weight:400;font-size:10.5px}
+.ap-desc{font-size:12px;color:var(--ink-f);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* actions */
+.ap-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.ap-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--r-md);font-size:12.5px;font-weight:600;cursor:pointer;border:1.5px solid transparent;transition:all .15s;font-family:'Geist',sans-serif;text-decoration:none;white-space:nowrap}
+.ap-btn-restore{background:var(--surf-2);border-color:var(--bdr);color:var(--ink-m)}
+.ap-btn-restore:hover{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+.ap-btn-del{background:var(--surf-2);border-color:var(--bdr);color:var(--ink-m)}
+.ap-btn-del:hover{background:#fef2f2;border-color:#fecaca;color:var(--danger)}
+
+/* divider */
+.ap-divider{height:1px;background:var(--bdr);margin:8px 20px}
+
+/* dates row */
+.ap-dates{padding:0 20px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ap-date-lbl{font-size:11px;color:var(--ink-f);font-family:'Geist Mono',monospace}
+.ap-date-val{font-size:11px;color:var(--ink-m);font-family:'Geist Mono',monospace;font-weight:500}
+
+/* empty */
+.ap-empty{background:var(--surf);border-radius:var(--r-xl);border:1px solid var(--bdr);box-shadow:var(--sh-sm);text-align:center;padding:80px 24px}
+.ap-ei{font-size:44px;display:block;margin-bottom:14px}
+.ap-et{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.ap-es{font-size:13px;color:var(--ink-m);margin-bottom:24px;line-height:1.6}
+.btn-goto{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:var(--r-md);background:var(--ink);color:#fff;text-decoration:none;font-size:13.5px;font-weight:700;font-family:'Geist',sans-serif;transition:background .15s,transform .1s}
+.btn-goto:hover{background:var(--ink-2);transform:translateY(-1px)}
+
+/* confirm dialog via CSS trick fallback — JS used */
+.ap-del-form{display:inline;margin:0}
+
+@media(max-width:520px){
+  .ap-card-inner{padding:12px 14px;gap:10px}
+  .ap-ico{width:36px;height:36px;font-size:18px}
+  .ap-name{font-size:13px}
+  .ap-btn{padding:6px 10px;font-size:12px}
+  .ap-dates{padding:0 14px 12px}
+  .ap-title{font-size:17px}
+}
+@media(max-width:360px){
+  .ap-actions{flex-direction:column;gap:3px}
+  .ap-btn{width:100%;justify-content:center}
+}
+</style>
+
+<div class="ap">
+
+  {% for msg in messages %}
+  <div class="ap-alert {% if msg.tags == 'success' %}ap-ok{% else %}ap-err{% endif %}">
+    <span>{% if msg.tags == 'success' %}✓{% else %}⚠{% endif %}</span>
+    {{ msg }}
+  </div>
+  {% endfor %}
+
+  <!-- Top bar -->
+  <div class="ap-topbar">
+    <div class="ap-topbar-l">
+      <a href="{% url 'habits' %}" class="ap-back">← Active Habits</a>
+      <div>
+        <div class="ap-title">Archive</div>
+      </div>
+    </div>
+    <span class="ap-count">{{ total_archived }} archived</span>
+  </div>
+
+  {% if habit_data %}
+
+  <!-- Info banner -->
+  <div class="ap-banner">
+    <span class="ap-banner-icon">📦</span>
+    <div>
+      Archived habits are paused but their history is preserved. Restore any habit to start tracking again.
+    </div>
+  </div>
+
+  <!-- Habit list -->
+  {% for hd in habit_data %}{% with h=hd.habit %}
+  <div class="ap-card" style="animation-delay:{{ forloop.counter0 }}00ms">
+
+    <div class="ap-card-inner">
+
+      <!-- Icon -->
+      <div class="ap-ico">{{ h.icon|default:"◆" }}</div>
+
+      <!-- Info -->
+      <div class="ap-info">
+        <div class="ap-name" title="{{ h.name }}">{{ h.name }}</div>
+        <div class="ap-meta">
+          {% if hd.longest_streak %}
+          <span class="ap-pill ap-pill-best">🏅 Best {{ hd.longest_streak }}d</span>
+          {% endif %}
+          <span class="ap-pill ap-pill-rate">{{ hd.completion_rate }}%</span>
+          <span class="ap-pill ap-pill-total">{{ hd.total }} done</span>
+          <span class="ap-pill ap-pill-freq">{{ h.get_frequency_display }}</span>
+        </div>
+        {% if h.description %}
+        <div class="ap-desc" title="{{ h.description }}">{{ h.description }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Actions -->
+      <div class="ap-actions">
+        <form method="POST" action="{% url 'habit_unarchive' h.pk %}" class="ap-del-form">
+          {% csrf_token %}
+          <button type="submit" class="ap-btn ap-btn-restore" title="Restore to active habits">
+            ♻️ Restore
+          </button>
+        </form>
+        <form method="POST" action="{% url 'habit_delete' h.pk %}" class="ap-del-form"
+              onsubmit="return confirm('Permanently delete «{{ h.name }}» and all its logs? This cannot be undone.')">
+          {% csrf_token %}
+          <button type="submit" class="ap-btn ap-btn-del" title="Delete permanently">
+            🗑 Delete
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Dates row -->
+    <div class="ap-divider"></div>
+    <div class="ap-dates">
+      <span class="ap-date-lbl">Started</span>
+      <span class="ap-date-val">{{ h.created_at|date:"M j, Y"|default:"—" }}</span>
+      <span style="color:var(--bdr-2)">·</span>
+      <span class="ap-date-lbl">Target</span>
+      <span class="ap-date-val">{{ h.target_days|default:"—" }} days</span>
+      <span style="color:var(--bdr-2)">·</span>
+      <span class="ap-date-lbl">Color</span>
+      <span class="ap-date-val" style="display:inline-flex;align-items:center;gap:4px">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c-{{ h.color }},#94a3b8)"></span>
+        {{ h.color }}
+      </span>
+    </div>
+
+  </div>
+  {% endwith %}{% endfor %}
+
+  {% else %}
+
+  <!-- Empty state -->
+  <div class="ap-empty">
+    <span class="ap-ei">🗂️</span>
+    <p class="ap-et">Archive is empty</p>
+    <p class="ap-es">
+      When you archive a habit from the main page<br>
+      it will appear here — history intact.
+    </p>
+    <a href="{% url 'habits' %}" class="btn-goto">← Go to Habits</a>
+  </div>
+
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -149,6 +149,40 @@ def habit_archive(request, habit_id):
     messages.success(request, f'Habit "{habit.name}" archived.')
     return redirect('habits')
 
+@never_cache
+@login_required
+def habits_archived(request):
+    habits = Habit.objects.filter(
+        user=request.user, is_archived=True
+    ).prefetch_related('logs').order_by('-created_at')
+ 
+    habit_data = []
+    for habit in habits:
+        habit_data.append({
+            'habit':           habit,
+            'current_streak':  habit.current_streak,
+            'longest_streak':  habit.longest_streak,
+            'completion_rate': habit.completion_rate,
+            'total':           habit.total_completions,
+        })
+ 
+    return render(request, 'habits/habits_archived.html', {
+        'habit_data':     habit_data,
+        'total_archived': habits.count(),
+    })
+ 
+ 
+@never_cache
+@login_required
+@require_POST
+def habit_unarchive(request, habit_id):
+    habit = get_object_or_404(Habit, pk=habit_id, user=request.user)
+    habit.is_archived = False
+    habit.save(update_fields=['is_archived'])
+    messages.success(request, f'Habit "{habit.name}" restored to active.')
+    return redirect('habits')
+
+
 
 @never_cache
 @login_required
