@@ -118,7 +118,7 @@ def register(request):
 
             user           = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
-            user.is_active = False
+            user.is_active = True
             user.save()
 
             code = OTPToken.generate_code()
