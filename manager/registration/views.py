@@ -107,8 +107,16 @@ def register(request):
 
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
+        
         if form.is_valid():
-            user          = form.save(commit=False)
+            username = form.cleaned_data['username']
+            email    = form.cleaned_data['email']
+
+            # Clean up any previous incomplete registration
+            User.objects.filter(username=username, is_active=False).delete()
+            User.objects.filter(email=email, is_active=False).delete()
+
+            user           = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
             user.is_active = False
             user.save()
@@ -118,14 +126,14 @@ def register(request):
 
             try:
                 send_mail(
-                    subject      = 'Verify your LetTask account',
-                    message      = (
+                    subject        = 'Verify your LetTask account',
+                    message        = (
                         f'Hi {user.username},\n\n'
                         f'Your verification code is: {code}\n\n'
                         f'This code expires in 5 minutes. '
                         f'Do not share it with anyone.'
                     ),
-                    from_email   = settings.EMAIL_HOST_USER,
+                    from_email     = settings.EMAIL_HOST_USER,
                     recipient_list = [user.email],
                     fail_silently  = False,
                 )
