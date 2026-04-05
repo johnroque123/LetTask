@@ -15,7 +15,6 @@ from django.core.cache       import cache
 from django.contrib          import messages
 from django.http             import JsonResponse
 from django.conf             import settings
-from google                  import genai
 from django.views.decorators.cache import never_cache
 
 from .models       import OTPToken, Profile
@@ -107,7 +106,6 @@ def register(request):
 
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
-        
         if form.is_valid():
             username = form.cleaned_data['username']
             email    = form.cleaned_data['email']
@@ -118,31 +116,12 @@ def register(request):
 
             user           = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
-            user.is_active = True
+            user.is_active = True  # skip email verification (SMTP blocked on Render free)
             user.save()
 
-            code = OTPToken.generate_code()
-            OTPToken.objects.create(user=user, code=code)
-
-            try:
-                send_mail(
-                    subject        = 'Verify your LetTask account',
-                    message        = (
-                        f'Hi {user.username},\n\n'
-                        f'Your verification code is: {code}\n\n'
-                        f'This code expires in 5 minutes. '
-                        f'Do not share it with anyone.'
-                    ),
-                    from_email     = settings.EMAIL_HOST_USER,
-                    recipient_list = [user.email],
-                    fail_silently  = False,
-                )
-            except Exception:
-                pass
-
-            request.session['otp_user_id']      = user.pk
-            request.session['otp_masked_email'] = _mask_email(user.email)
-            return redirect('verify_otp')
+            Profile.objects.get_or_create(user=user)
+            messages.success(request, "Account created! You can now log in.")
+            return redirect('login')
     else:
         form = UserRegisterForm()
 
@@ -216,6 +195,7 @@ def verify_otp_view(request):
 
 
 # ─── Login ─────────────────────────────────────────────────────────────────────
+
 @never_cache
 def login_view(request):
     if request.user.is_authenticated:
@@ -289,14 +269,14 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     response = redirect('login')
-
     response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
-    response['Pragma'] = 'no-cache'
+    response['Pragma']  = 'no-cache'
     response['Expires'] = '0'
     return response
 
 
 # ─── Change Password ───────────────────────────────────────────────────────────
+
 @never_cache
 @login_required
 def change_password_view(request):
@@ -454,6 +434,7 @@ def reset_password_view(request):
 
 
 # ─── Edit Profile ──────────────────────────────────────────────────────────────
+
 @never_cache
 @login_required
 def edit_profile_view(request):
@@ -505,6 +486,7 @@ def _sanitise(text, limit=100):
 @login_required
 @require_POST
 def chatbot(request):
+    from google import genai  # lazy import to avoid memory issues on startup
     try:
         data         = json.loads(request.body)
         user_message = data.get('message', '').strip()
