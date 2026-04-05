@@ -54,6 +54,7 @@ WSGI_APPLICATION = 'task.wsgi.application'
 # ─── Proxy / IP ────────────────────────────────────────────────────────────────
 # Set to 1 if behind nginx/Cloudflare, 0 for direct/local deployment
 TRUSTED_PROXY_COUNT = env.int('TRUSTED_PROXY_COUNT', default=0)
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 # ─── Templates ─────────────────────────────────────────────────────────────────
 
