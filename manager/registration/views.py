@@ -2,6 +2,7 @@ import os
 import time
 import json
 import datetime
+import requests
 
 from django.shortcuts        import render, redirect
 from django.contrib.auth     import authenticate
@@ -10,7 +11,6 @@ from django.contrib.auth     import login as auth_login
 from django.contrib.auth     import get_user_model
 from django.contrib.auth.decorators  import login_required
 from django.views.decorators.http    import require_POST
-from django.core.mail        import send_mail
 from django.core.cache       import cache
 from django.contrib          import messages
 from django.http             import JsonResponse
@@ -30,6 +30,31 @@ from .forms import (
 )
 
 User = get_user_model()
+
+
+# ─── Brevo Email Helper ────────────────────────────────────────────────────────
+
+def send_email_brevo(to_email, to_name, subject, message):
+    url = "https://api.brevo.com/v3/smtp/email"
+    headers = {
+        "accept": "application/json",
+        "api-key": settings.BREVO_API_KEY,
+        "content-type": "application/json",
+    }
+    payload = {
+        "sender": {
+            "name": "LetTask",
+            "email": settings.EMAIL_HOST_USER,
+        },
+        "to": [{"email": to_email, "name": to_name}],
+        "subject": subject,
+        "textContent": message,
+    }
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        return response.status_code == 201
+    except Exception:
+        return False
 
 
 # ─── Brute-force helpers ───────────────────────────────────────────────────────
@@ -116,12 +141,27 @@ def register(request):
 
             user           = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
-            user.is_active = True  # skip email verification (SMTP blocked on Render free)
+            user.is_active = False
             user.save()
 
-            Profile.objects.get_or_create(user=user)
-            messages.success(request, "Account created! You can now log in.")
-            return redirect('login')
+            code = OTPToken.generate_code()
+            OTPToken.objects.create(user=user, code=code)
+
+            send_email_brevo(
+                to_email = user.email,
+                to_name  = user.username,
+                subject  = 'Verify your LetTask account',
+                message  = (
+                    f'Hi {user.username},\n\n'
+                    f'Your verification code is: {code}\n\n'
+                    f'This code expires in 5 minutes. '
+                    f'Do not share it with anyone.'
+                ),
+            )
+
+            request.session['otp_user_id']      = user.pk
+            request.session['otp_masked_email'] = _mask_email(user.email)
+            return redirect('verify_otp')
     else:
         form = UserRegisterForm()
 
@@ -319,22 +359,18 @@ def forgot_password_view(request):
             code = OTPToken.generate_code()
             OTPToken.objects.create(user=user, code=code, purpose=OTPToken.PURPOSE_RESET)
 
-            try:
-                send_mail(
-                    subject        = 'Reset your LetTask password',
-                    message        = (
-                        f'Hi {user.username},\n\n'
-                        f'Your password reset code is: {code}\n\n'
-                        f'This code expires in 5 minutes. '
-                        f'Do not share it with anyone.\n\n'
-                        f'If you did not request this, ignore this email.'
-                    ),
-                    from_email     = settings.EMAIL_HOST_USER,
-                    recipient_list = [user.email],
-                    fail_silently  = False,
-                )
-            except Exception:
-                pass
+            send_email_brevo(
+                to_email = user.email,
+                to_name  = user.username,
+                subject  = 'Reset your LetTask password',
+                message  = (
+                    f'Hi {user.username},\n\n'
+                    f'Your password reset code is: {code}\n\n'
+                    f'This code expires in 5 minutes. '
+                    f'Do not share it with anyone.\n\n'
+                    f'If you did not request this, ignore this email.'
+                ),
+            )
 
             request.session['reset_user_id']      = user.pk
             request.session['reset_masked_email'] = _mask_email(user.email)
